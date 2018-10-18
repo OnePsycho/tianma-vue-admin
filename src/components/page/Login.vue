@@ -75,6 +75,7 @@
         line-height: 50px;
         text-align: center;
         font-size:20px;
+        font-weight: bolder;
         color: #fff;
         border-bottom: 1px solid #ddd;
     }
