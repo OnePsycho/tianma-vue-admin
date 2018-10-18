@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-row :gutter="20">
-            <el-col :span="8">
+<!--            <el-col :span="8">
                 <el-card shadow="hover" class="mgb20" style="height:252px;">
                     <div class="user-info">
                         <img src="static/img/img.jpg" class="user-avator" alt="">
@@ -26,10 +26,10 @@
                     HTML
                     <el-progress :percentage="0.9" color="#f56c6c"></el-progress>
                 </el-card>
-            </el-col>
-            <el-col :span="16">
+            </el-col> -->
+            <el-col :span="24">
                 <el-row :gutter="20" class="mgb20">
-                    <el-col :span="8">
+                    <el-col :span="6">
                         <el-card shadow="hover" :body-style="{padding: '0px'}">
                             <div class="grid-content grid-con-1">
                                 <i class="el-icon-lx-people grid-con-icon"></i>
@@ -40,7 +40,7 @@
                             </div>
                         </el-card>
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="6">
                         <el-card shadow="hover" :body-style="{padding: '0px'}">
                             <div class="grid-content grid-con-2">
                                 <i class="el-icon-lx-notice grid-con-icon"></i>
@@ -51,42 +51,29 @@
                             </div>
                         </el-card>
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="6">
                         <el-card shadow="hover" :body-style="{padding: '0px'}">
                             <div class="grid-content grid-con-3">
                                 <i class="el-icon-lx-goods grid-con-icon"></i>
                                 <div class="grid-cont-right">
-                                    <div class="grid-num">5000</div>
+                                    <div class="grid-num">50000</div>
+                                    <div>数量</div>
+                                </div>
+                            </div>
+                        </el-card>
+                    </el-col>
+					<el-col :span="6">
+                        <el-card shadow="hover" :body-style="{padding: '0px'}">
+                            <div class="grid-content grid-con-3">
+                                <i class="el-icon-lx-goods grid-con-icon"></i>
+                                <div class="grid-cont-right">
+                                    <div class="grid-num">50000</div>
                                     <div>数量</div>
                                 </div>
                             </div>
                         </el-card>
                     </el-col>
                 </el-row>
-                <el-card shadow="hover" style="height:403px;">
-                    <div slot="header" class="clearfix">
-                        <span>待办事项</span>
-                        <el-button style="float: right; padding: 3px 0" type="text">添加</el-button>
-                    </div>
-                    <el-table :data="todoList" :show-header="false" height="304" style="width: 100%;font-size:14px;">
-                        <el-table-column width="40">
-                            <template slot-scope="scope">
-                                <el-checkbox v-model="scope.row.status"></el-checkbox>
-                            </template>
-                        </el-table-column>
-                        <el-table-column>
-                            <template slot-scope="scope">
-                                <div class="todo-item" :class="{'todo-item-del': scope.row.status}">{{scope.row.title}}</div>
-                            </template>
-                        </el-table-column>
-                        <el-table-column width="60">
-                            <template slot-scope="scope">
-                                <i class="el-icon-edit"></i>
-                                <i class="el-icon-delete"></i>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-card>
             </el-col>
         </el-row>
         <el-row :gutter="20">
@@ -112,30 +99,6 @@
         data() {
             return {
                 name: localStorage.getItem('ms_username'),
-                todoList: [{
-                        title: '今天要修复100个bug',
-                        status: false,
-                    },
-                    {
-                        title: '今天要修复100个bug',
-                        status: false,
-                    },
-                    {
-                        title: '今天要写100行代码加几个bug吧',
-                        status: false,
-                    }, {
-                        title: '今天要修复100个bug',
-                        status: false,
-                    },
-                    {
-                        title: '今天要修复100个bug',
-                        status: true,
-                    },
-                    {
-                        title: '今天要写100行代码加几个bug吧',
-                        status: true,
-                    }
-                ],
                 data: [{
                         name: '2018/09/04',
                         value: 1083
@@ -221,7 +184,7 @@
                 }, 300);
             },
             renderChart(){
-                this.$refs.bar.renderChart();
+                // this.$refs.bar.qianwan ();
                 this.$refs.line.renderChart();
             }
         }

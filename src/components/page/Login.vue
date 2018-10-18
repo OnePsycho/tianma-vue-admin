@@ -1,7 +1,7 @@
 <template>
     <div class="login-wrap">
         <div class="ms-login">
-            <div class="ms-title">后台管理系统</div>
+            <div class="ms-title">积分商城后台管理系统</div>
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0px" class="ms-content">
                 <el-form-item prop="username">
                     <el-input v-model="ruleForm.username" placeholder="username">
@@ -16,7 +16,6 @@
                 <div class="login-btn">
                     <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
                 </div>
-                <p class="login-tips">Tips : 用户名和密码随便填。</p>
             </el-form>
         </div>
     </div>
@@ -44,6 +43,13 @@
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
+// 						this.$axios.post('http://192.168.1.20/admin/loginProcess', {
+// 							username: this.ruleForm.username,
+// 							password: this.ruleForm.password
+// 						}).then((res) => {
+// 							console.log(res);
+// 							// this.tableData = res.data;
+// 						})
                         localStorage.setItem('ms_username',this.ruleForm.username);
                         this.$router.push('/');
                     } else {
@@ -76,14 +82,14 @@
         position: absolute;
         left:50%;
         top:50%;
-        width:350px;
-        margin:-190px 0 0 -175px;
+        width:400px;
+        margin:-190px 0 0 -200px;
         border-radius: 5px;
         background: rgba(255,255,255, 0.3);
         overflow: hidden;
     }
     .ms-content{
-        padding: 30px 30px;
+        padding: 50px 30px;
     }
     .login-btn{
         text-align: center;
@@ -98,4 +104,5 @@
         line-height:30px;
         color:#fff;
     }
+
 </style>

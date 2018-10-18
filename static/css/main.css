@@ -23,9 +23,9 @@ a {
 
 .content-box {
     position: absolute;
-    left: 250px;
+    left: 200px;
     right: 0;
-    top: 70px;
+    top: 90px;
     bottom: 0;
     padding-bottom: 30px;
     -webkit-transition: left .3s ease-in-out;
@@ -39,6 +39,7 @@ a {
     padding: 10px;
     overflow-y: scroll;
     box-sizing: border-box;
+	min-width: 1168px;
 }
 
 .content-collapse {
@@ -155,7 +156,7 @@ a {
 /*VueEditor*/
 
 .ql-container {
-    min-height: 400px;
+    min-height: 200px;
 }
 
 .ql-snow .ql-tooltip {
@@ -170,4 +171,54 @@ a {
 
 .v-note-wrapper .v-note-panel {
     min-height: 500px;
+}
+
+	
+.el-upload--picture-card{
+	width: 100px;
+	height: 100px;
+	line-height: 110px;
+}
+.el-upload-list--picture-card .el-upload-list__item{
+	width: 100px;
+	height: 100px;
+	line-height: 110px;
+}
+.el-form-item__label{
+	padding-right: 25px;
+}
+
+.el-table .cell{
+	line-height: 35px !important;
+}
+.el-button+.el-button{
+	margin-left: 0px !important;
+}
+.el-table thead{
+	color: #000000;
+}
+.el-button--text{
+	padding-right: 8px;
+}
+.ms-login .el-input--small .el-input__inner{
+	height: 40px;
+	line-height: 40px;
+	font-size: 15px;
+	font-weight: bold;
+}
+.el-icon-lx-lock,.el-icon-lx-people{
+	font-size: 17px;
+}
+.login-btn button[data-v-1b2fa4a8]{
+	height: 40px;
+}
+.ms-login[data-v-1b2fa4a8]{
+	background: rgba(204, 204, 204, 0.6) !important;
+}
+.handle-input {
+	width: 300px;
+	display: inline-block;
+}
+.header .logo[data-v-1c06a0fe]{
+	font-weight: bolder;
 }

@@ -98,17 +98,21 @@
 <style>
     .tags {
         position: relative;
-        height: 30px;
+        height: 50px;
         overflow: hidden;
         background: #fff;
         padding-right: 120px;
         box-shadow: 0 5px 10px #ddd;
+		line-height: 50px;
     }
 
     .tags ul {
         box-sizing: border-box;
         width: 100%;
         height: 100%;
+		display: flex;
+		padding-left: 20px;
+		align-items: center;
     }
 
     .tags-li {
@@ -161,8 +165,8 @@
         text-align: center;
         width: 110px;
         height: 30px;
-        background: #fff;
-        box-shadow: -3px 0 15px 3px rgba(0, 0, 0, .1);
+        /* background: rgb(0,0,0,0); */
+        /* box-shadow: -3px 0 15px 3px rgba(0, 0, 0, .1); */
         z-index: 10;
     }
 
