@@ -23,7 +23,6 @@
 			</div>
 			<el-table :data="data" border class="table" v-loading="loading" ref="multipleTable" stripe @selection-change="handleSelectionChange">
 				<el-table-column type="selection" width="55" align="center"></el-table-column>
-
 				<el-table-column prop="exchange_order_id" label="订单ID"  align="center" width="80">
 				</el-table-column>
 				<el-table-column prop="order_code" label="订单编号"  align="center">
