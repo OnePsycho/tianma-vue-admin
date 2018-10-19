@@ -127,6 +127,18 @@
 				</el-form-item>
 				<el-form-item label="商品券码" prop="ticket_code">
 					<el-input v-model="form.ticket_code"></el-input>
+					<el-upload
+						class="upload-demo"
+						action=""
+						:auto-upload="true"
+						multiple
+						:limit="1"
+						:show-file-list="false"
+						:http-request="uploadTxt"
+						:before-upload="beforeTxtUpload"
+						:file-list="txtList">
+					<el-button size="small" type="primary">重新上传券码TXT文件</el-button>
+				</el-upload>
 				</el-form-item>
 				<el-form-item label="商家配图" prop="picture">
 					<el-upload action="" list-type="picture-card" :auto-upload="true" :http-request="uploadImgShop"
@@ -211,6 +223,18 @@
 				</el-form-item>
 				<el-form-item label="商品券码" prop="ticket_code">
 					<el-input v-model="formAdd.ticket_code"></el-input>
+					<el-upload
+						class="upload-demo"
+						action=""
+						:auto-upload="true"
+						multiple
+						:limit="1"
+						:show-file-list="false"
+						:http-request="uploadTxtAdd"
+						:before-upload="beforeTxtUpload"
+						:file-list="txtList">
+					<el-button size="small" type="primary">点击上传券码TXT文件</el-button>
+				</el-upload>
 				</el-form-item>
 				<el-form-item label="商家配图" prop="picture">
 					<el-upload action="" list-type="picture-card" :auto-upload="true" :http-request="uploadImgShop"
@@ -255,534 +279,687 @@
 </template>
 
 <script>
-	import 'quill/dist/quill.core.css';
-	import 'quill/dist/quill.snow.css';
-	import 'quill/dist/quill.bubble.css';
-	import {
-		quillEditor
-	} from 'vue-quill-editor';
-	export default {
-		name: 'basetable',
-		data() {
-			return {
-				url:'',
-				tableData: [],
-				apiUrl:domain.apiUrl,
-				cur_page: 1,
-				multipleSelection: [],
-				select_cate: '',
-				select_word: '',
-				del_list: [],
-				is_search: false,
-				editVisible: false,
-				addVisible: false,
-				delVisible: false,
-				dialogImageUrl: '',
-				dialogVisible: false,
-				content: '',
-				timePickerValue: [],
-				editorOption: {placeholder: '使用规则、使用流程...'},
-				editorOption2: {placeholder: '重要声明...'},
-				form: {},
-				formAdd: {
-					img_list: [],
-					img_list_shop:[],
-					product_name:'',
-					point_needed: '',
-					timePickerValue:[],
-					start_time: '',
-					end_time:'',
-					description:'',
-					declaration: '',
-					product_category_name: '',
-					link:'',
-					ticket_code:''
-				},
-				videoFlag:false,
-				videoForm:{
-					Video:''
-				},
-				videoUploadPercent:'',
-				idx: -1,
-				loading: true,
-				pickerOptions2: {
-        shortcuts: [{
-            text: '最近一周',
+import "quill/dist/quill.core.css";
+import "quill/dist/quill.snow.css";
+import "quill/dist/quill.bubble.css";
+import { quillEditor } from "vue-quill-editor";
+export default {
+  name: "basetable",
+  data() {
+    return {
+	  url: "",
+	  txtList:[],
+      tableData: [],
+      apiUrl: domain.apiUrl,
+      cur_page: 1,
+      multipleSelection: [],
+      select_cate: "",
+      select_word: "",
+      del_list: [],
+      is_search: false,
+      editVisible: false,
+      addVisible: false,
+      delVisible: false,
+      dialogImageUrl: "",
+      dialogVisible: false,
+      content: "",
+      timePickerValue: [],
+      editorOption: { placeholder: "使用规则、使用流程..." },
+      editorOption2: { placeholder: "重要声明..." },
+      form: {
+		img_list: [],
+        img_list_shop: [],
+        product_name: "",
+        point_needed: "",
+        timePickerValue: [],
+        start_time: "",
+        end_time: "",
+        description: "",
+        declaration: "",
+        product_category_name: "",
+        link: "",
+        ticket_code: ""
+	  },
+      formAdd: {
+        img_list: [],
+        img_list_shop: [],
+        product_name: "",
+        point_needed: "",
+        timePickerValue: [],
+        start_time: "",
+        end_time: "",
+        description: "",
+        declaration: "",
+        product_category_name: "",
+        link: "",
+        ticket_code: ""
+      },
+      videoFlag: false,
+      videoForm: {
+        Video: ""
+      },
+      videoUploadPercent: "",
+      idx: -1,
+      loading: true,
+      pickerOptions2: {
+        shortcuts: [
+          {
+            text: "最近一周",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }, {
-            text: '最近一个月',
+          },
+          {
+            text: "最近一个月",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }, {
-            text: '最近三个月',
+          },
+          {
+            text: "最近三个月",
             onClick(picker) {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
+              picker.$emit("pick", [start, end]);
             }
-          }]
-        },
-        // value4: [new Date(2000, 10, 10, 10, 10), new Date(2000, 10, 11, 10, 10)],
-        value5: '',
-				// 表单填写规则
-				rules: {
-          product_name: [
-            { required: true,  trigger: 'blur',message: '商品名称不能为空', },
-            { min: 1, max: 20, message: '长度在 1 到 20 个文字', trigger: 'blur' }
-          ],
-          point_needed: [
-            { required: true, message: '兑换积分不能为空', trigger: 'change' }
-          ],
-          description: [
-            { required: true, message: '商品详情不能为空', trigger: 'change' }
-          ],
-          product_category_name: [
-          	{ required: true, message: '类别不能为空', trigger: 'change' }
-          ],
-			link: [
-            { required: false, message: '使用链接不能为空', trigger: 'change' }
-          ],
-			ticket_code: [
-            { required: false, message: '商品券码不能为空', trigger: 'change' }
-          ],
-			timePickerValue:[
-			{ required: true, message: '日期不能为空',trigger: 'change' }
-			],
-			product_img:[
-			{ required: false, message: '请上传商品图片', trigger: 'change'}
-			]
-        },
-				totalNum:0,
-				pageSize:10,
-				product_img_limit:3,
-				picture_limit:1,
-				currentId:0,
-				classifyList:[],
-				areaList:[],
-				imgListNoHeader:[],
-				imgShopNoHeader:[],
-				deleteIdArr:[],
-				videoNoHeader:''
-			}
-		},
-		created() {
-			this.getData();
-		},
-		watch:{   //监听路由变化
-			$route(to){   
-			   if(to.path == "/table"){
-				   this.getData();//当前页面展示即刷新数据
-				   this.value5 = "";
-			   }
-			 }
-		},
-		components: {
-			quillEditor
-		},
-		computed: {
-			// 筛选部分
-			data() {
-				return this.tableData.filter((d) => {
-					let is_del = false;
-// 					for (let i = 0; i < this.del_list.length; i++) {
-// 						if (d.product_name === this.del_list[i].product_name || d.product_category_name === this.del_list[i].product_category_name) {
-// 							is_del = true;
-// 							break;
-// 						}
-// 					}
-					if (!is_del) {
-						if (d.product_category_name.indexOf(this.select_cate) > -1 &&
-							(d.product_name.indexOf(this.select_word) > -1 ||
-								d.product_category_name.indexOf(this.select_word) > -1) // >-1代表有符合条件的item
-						) {
-							return d;
-						}
-					}
-				})
-			}
-		},
-		methods: {
-			// 分页导航
-			handleCurrentChange(val) {
-				this.cur_page = val;
-				this.getData();
-			},
-			// 获取 easy-mock 的模拟数据
-			getData() {
-				this.url = this.apiUrl+'/g01jfsc_zk65M/product/getProductList?page_size='+this.pageSize+'&index=' + this.cur_page;
-				this.$axios.get(this.url, {
-					page: this.cur_page
-				}).then((res) => {
-					this.tableData = res.data.data.list;
-					this.loading = false;
-					this.totalNum = res.data.data.totalElements;
-					this.pageSize = res.data.data.pageSize;
-				})
-				
-				// 获取分类信息
-				this.$axios.get(this.apiUrl+'/g01jfsc_zk65M/product_category/getProductCategoryList&index=1').then((res) => {
-					this.classifyList = res.data.data.list;
-				})
-				// 获取专区信息
-				this.$axios.get(this.apiUrl+'/g01jfsc_zk65M/area/getAreaList&index=1').then((res) => {
-					this.areaList = res.data.data.list;
-				})
-			},
-			// 筛选标签
-			filterTag(value, row) {
-				return row.status === value;
-			},
-			// 编辑信息
-			handleEdit(id,index,row) {
-				this.idx = index;
-				this.currentId = id;
-				this.timePickerValue = [];
-				// 点击获取商品详情
-				this.$axios.get(this.apiUrl+'/g01jfsc_zk65M/product/getProductInfo?product_id='+id).then((res) => {
-					if(res.data.code==200){
-						let imgList = JSON.parse(res.data.data.product_img);
-						let imgListShop = JSON.parse(res.data.data.picture);
-						this.imgListNoHeader = JSON.parse(res.data.data.product_img);
-						this.imgShopNoHeader = JSON.parse(res.data.data.picture);
-						if(res.data.data.video){
-							this.videoForm.Video = this.apiUrl+res.data.data.video;
-						}else{
-							this.videoForm.Video = "";
-						}
-						console.log(this.imgListNoHeader);
+          }
+        ]
+      },
+      // value4: [new Date(2000, 10, 10, 10, 10), new Date(2000, 10, 11, 10, 10)],
+      value5: "",
+      // 表单填写规则
+      rules: {
+        product_name: [
+          { required: true, trigger: "blur", message: "商品名称不能为空" },
+          { min: 1, max: 20, message: "长度在 1 到 20 个文字", trigger: "blur" }
+        ],
+        point_needed: [
+          { required: true, message: "兑换积分不能为空", trigger: "change" }
+        ],
+        description: [
+          { required: true, message: "商品详情不能为空", trigger: "change" }
+        ],
+        product_category_name: [
+          { required: true, message: "类别不能为空", trigger: "change" }
+        ],
+        link: [
+          { required: false, message: "使用链接不能为空", trigger: "change" }
+        ],
+        ticket_code: [
+          { required: false, message: "商品券码不能为空", trigger: "change" }
+        ],
+        timePickerValue: [
+          { required: true, message: "日期不能为空", trigger: "change" }
+        ],
+        product_img: [
+          { required: false, message: "请上传商品图片", trigger: "change" }
+        ]
+      },
+      totalNum: 0,
+      pageSize: 10,
+      product_img_limit: 3,
+      picture_limit: 1,
+      currentId: 0,
+      classifyList: [],
+      areaList: [],
+      imgListNoHeader: [],
+      imgShopNoHeader: [],
+      deleteIdArr: [],
+      videoNoHeader: ""
+    };
+  },
+  created() {
+    this.getData();
+  },
+  watch: {
+    //监听路由变化
+    $route(to) {
+      if (to.path == "/table") {
+        this.getData(); //当前页面展示即刷新数据
+        this.value5 = "";
+      }
+    }
+  },
+  components: {
+    quillEditor
+  },
+  computed: {
+    // 筛选部分
+    data() {
+      return this.tableData.filter(d => {
+        let is_del = false;
+        // 					for (let i = 0; i < this.del_list.length; i++) {
+        // 						if (d.product_name === this.del_list[i].product_name || d.product_category_name === this.del_list[i].product_category_name) {
+        // 							is_del = true;
+        // 							break;
+        // 						}
+        // 					}
+        if (!is_del) {
+          if (
+            d.product_category_name.indexOf(this.select_cate) > -1 &&
+            (d.product_name.indexOf(this.select_word) > -1 ||
+              d.product_category_name.indexOf(this.select_word) > -1) // >-1代表有符合条件的item
+          ) {
+            return d;
+          }
+        }
+      });
+    }
+  },
+  methods: {
+    // 分页导航
+    handleCurrentChange(val) {
+      this.cur_page = val;
+      this.getData();
+    },
 
-						for(var i=0;i<imgList.length;i++){
-							imgList[i].url = this.apiUrl + imgList[i].url
-						}
-						for(var i=0;i<imgListShop.length;i++){
-							imgListShop[i].url = this.apiUrl+imgListShop[i].url
-						}
-						this.timePickerValue.push(res.data.data.start_time);
-						this.timePickerValue.push(res.data.data.end_time);
-						this.$nextTick(function(){
-							this.form = {
-								img_list: imgList,
-								img_list_shop:imgListShop,
-								product_name: res.data.data.product_name,
-								point_needed: res.data.data.point_needed,
-								timePickerValue:this.timePickerValue,
-								start_time: res.data.data.start_time,
-								end_time: res.data.data.end_time,
-								description: res.data.data.description,
-								declaration: res.data.data.declaration,
-								product_category_name: res.data.data.product_category_name,
-								link:res.data.data.link,
-								ticket_code:res.data.data.ticket_code,
-								area_id:res.data.data.area_id
-							}
-							this.editVisible = true;
-						})
-					}
-				})
-			},
-			// 删除信息
-			handleDelete(id,index,row) {
-				this.idx = index;
-				this.currentId = id;
-				this.delVisible = true;
-			},
-			// 批量删除
-			delAll() {
-				this.deleteIdArr =[];
-				const length = this.multipleSelection.length;
-				if(length==0){
-					this.$message.error('请选择删除项！');
-				}else{
-					let str = '';
-					this.del_list = this.del_list.concat(this.multipleSelection);
-					for (let i = 0; i < length; i++) {
-						str += this.multipleSelection[i].product_name + ' ';
-						this.deleteIdArr.push(this.multipleSelection[i].product_id);
-					}
-					this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/product/deleteProduct',
-						{product_id: this.deleteIdArr,
-							paramsSerializer:product_id => {
-								return qs.stringify(product_id, { indices: false })}
-					}).then((res) => { 
-								if(res.data.code==200){
-									this.getData();
-									console.log(this.tableData);
-									this.$message.success('删除成功!');
-									this.multipleSelection = [];
-									this.deleteIdArr = [];
-								}else{
-									this.$message.warn('删除失败!');
-								}
-							})
-				}
-			},
-			handleSelectionChange(val) {
-				this.multipleSelection = val;
-			},
-			// 保存编辑
-			saveEdit(formName) {
-				this.$refs[formName].validate((valid) => {
-					if (valid) {
-						if(this.imgListNoHeader.length==0||this.imgShopNoHeader.length==0||this.videoForm.Video==""||this.videoForm.Video==null){
-							this.$message("视频图片不能为空！");
-						}else{
-							// 发送修改商品信息请求
-							console.log(this.imgListNoHeader);
-							this.$axios.put(this.apiUrl+'/g01jfsc_zk65M/product/updateProduct', {
-								product_id:this.currentId,
-								product_name:this.form.product_name,
-								start_time:this.form.timePickerValue[0],
-								end_time:this.form.timePickerValue[1],
-								point_needed:this.form.point_needed,
-								description:this.form.description,
-								product_category_name:this.form.product_category_name,
-								link:this.form.link,
-								ticket_code:this.form.ticket_code,
-								declaration:this.form.declaration,
-								picture: this.imgShopNoHeader,
-								product_img: this.imgListNoHeader,
-								video:this.videoNoHeader,
-								area_id:this.form.area_id
-							}).then((res) => {
-								if(res.data.code==200){
-									this.getData();
-									this.editVisible = false;
-									this.$message.success(`修改第 ${this.idx+1} 行成功`);
-									this.imgListNoHeader = [];
-									this.imgShopNoHeader = [];
-								}else{
-									this.$message.warn("修改失败，请稍后重试！");
-								}
-							})
-						}
-					} else {
-						console.log('error submit!!');
-					  console.log(this.form.img_list);
-						return false;
-					}
-				});
-			},
-			 // 保存新增
-			saveAdd(formName) {
-				this.$refs[formName].validate((valid) => {
-					if (valid) {
-						if(this.imgListNoHeader.length==0||this.imgShopNoHeader.length==0||this.videoForm.Video==""||this.videoForm.Video==null){
-							this.$message("视频图片不能为空！");
-						}else{
-						this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/product/addProduct', {
-							product_name:this.formAdd.product_name,
-							start_time:this.formAdd.timePickerValue[0],
-							end_time:this.formAdd.timePickerValue[1],
-							point_needed:this.formAdd.point_needed,
-							description:this.formAdd.description,
-							product_category_name:this.formAdd.product_category_name,
-							link:this.formAdd.link,
-							ticket_code:this.formAdd.ticket_code,
-							declaration:this.formAdd.declaration,
-							picture: this.imgShopNoHeader,
-							product_img: this.imgListNoHeader,
-							video:this.videoNoHeader,
-							area_id:this.formAdd.area_id
-						}).then((res) => {
-							if(res.data.code==200){
-								this.getData();
-								this.addVisible = false;
-								this.$message.success(`添加成功`);
-								this.imgListNoHeader = [];
-								this.imgShopNoHeader = [];
-								this.formAdd.img_list = [];
-								this.formAdd.img_list_shop = [];
-								this.$refs['formAdd'].resetFields();
-							}else{
-								this.$message.warn(`添加失败`);
-							}
-						})
-						}
-					} else {
-						console.log('保存失败!!');
-						return false;
-					}
-				});
-			},
-			// 确定删除
-			deleteRow() {
-				this.deleteIdArr.push(this.currentId);
-				this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/product/deleteProduct',{
-				product_id: this.deleteIdArr,
-				paramsSerializer:product_id => {
-					return qs.stringify(product_id, { indices: false })}
-		}).then((res) => {
-					if(res.data.code==200){
-						this.getData();
-						this.tableData.splice(this.idx, 1);
-						this.$message.success('删除成功');
-						this.delVisible = false;
-						this.deleteIdArr = [];
-					}
-				})
-			},
-			// 移除文件
-			handleRemove(file, fileList) {
-				console.log(file, fileList);
-				if(fileList.length == 0){this.$message("图片不能为空！")}
-			},
-			beforeRemove(file, fileList){
-				for (var i = 0; i < fileList.length; i++){
-					if (fileList[i] === file){ //表示数组里面有这个元素
-							console.log(i);
-							this.imgListNoHeader.splice(i,1);
-					}
-			}},
-			beforeRemoveShopImg(file, fileList){
-				for (var i = 0; i < fileList.length; i++){
-					if (fileList[i] === file){ //表示数组里面有这个元素
-							console.log(i);
-							this.imgShopNoHeader.splice(i,1);
-					}
-			}},
-			handlePictureCardPreview(file) {
-				this.dialogImageUrl = file.url;
-				this.dialogVisible = true;
-			},
-			// 新增
-			addAction() {
-				this.imgListNoHeader = [];
-				this.imgShopNoHeader = [];
-				this.form = [];
-				this.videoForm.Video = "";
-				this.addVisible = true;
-			},
-			filterDate(){
-				console.log(this.value5);
-				if(!this.value5){
-					this.getData();
-				}else{
-					this.$axios.get(this.apiUrl+'/g01jfsc_zk65M/product/getProductList?page_size='+this.pageSize+'&index=' + this.cur_page+'&start_time=' + this.value5[0]+
-					'&end_time=' + this.value5[1], ).then((res) => {
-						console.log(res);
-						this.tableData = res.data.data.list;
-						this.totalNum = res.data.data.totalElements;
-						this.pageSize = res.data.data.pageSize;
-				})
-				}
-			},
-			limitTip(){
-				this.$message("图片数量已达最大限制！");
-			},
-			// 上传商品图片
-			uploadImg(res){
-				var formData = new FormData();
-				formData.append("file",res.file);
-				this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/upload/imgUpload',formData)
-				.then((res) => {
-					if(res.data.code==200){
-						this.$message.success("上传成功");
-						this.imgListNoHeader.push(res.data.data);
-						console.log(this.imgListNoHeader);
-					}else{
-						this.$message.warn('上传失败！请重试');
-					}
-				})
-			},
-			// 上传商家图片
-			uploadImgShop(res){
-				var formData = new FormData();
-				formData.append("file",res.file);
-				this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/upload/imgUpload',formData)
-				.then((res) => {
-					if(res.data.code==200){
-						this.$message.success("上传成功");
-						this.imgShopNoHeader.push(res.data.data);
-						console.log(this.imgShopNoHeader);
-					}
-				})
-			},
-			// 上传商品视频
-			uploadVideo(res){
-				var formData = new FormData();
-				formData.append("file",res.file);
-				this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/upload/videoUpload ',formData)
-				.then((res) => {
-					if(res.data.code==200){
-						this.form.video = res.data.data;
-						this.videoForm.Video = this.apiUrl+res.data.data;
-						this.videoNoHeader = res.data.data;
-						this.$message.success("上传成功");
-						console.log(this.form);
-						console.log(this.videoForm);
-					}
-				})
-			},
-			handleVideoSuc(){
-				this.$message.success("视频传输完成！");
-				console.log("传输完成!");
-			},
-			handleSizeChange(val) {
-				this.pageSize = val;
-				this.getData();
-			},
-			beforeUploadVideo(file) {
-					const isLt10M = file.size / 1024 / 1024  < 10;
-					if (['video/mp4', 'video/ogg', 'video/flv','video/avi','video/wmv','video/rmvb'].indexOf(file.type) == -1) {
-							this.$message.error('请上传正确的视频格式');
-							return false;
-					}
-					if (!isLt10M) {
-							this.$message.error('上传视频大小不能超过10MB哦!');
-							return false;
-					}
-			},
-			uploadVideoProcess(event, file, fileList){
-					this.videoFlag = true;
-					this.videoUploadPercent = file.percentage.toFixed(0);
-			}
-			}
-			
-	}
+    getData() {
+      this.url =
+        this.apiUrl +
+        "/g01jfsc_zk65M/product/getProductList?page_size=" +
+        this.pageSize +
+        "&index=" +
+        this.cur_page;
+      this.$axios
+        .get(this.url, {
+          page: this.cur_page
+        })
+        .then(res => {
+          this.tableData = res.data.data.list;
+          this.loading = false;
+          this.totalNum = res.data.data.totalElements;
+          this.pageSize = res.data.data.pageSize;
+        });
+
+      // 获取分类信息
+      this.$axios
+        .get(
+          this.apiUrl +
+            "/g01jfsc_zk65M/product_category/getProductCategoryList&index=1"
+        )
+        .then(res => {
+          this.classifyList = res.data.data.list;
+        });
+      // 获取专区信息
+      this.$axios
+        .get(this.apiUrl + "/g01jfsc_zk65M/area/getAreaList&index=1")
+        .then(res => {
+          this.areaList = res.data.data.list;
+        });
+    },
+    // 筛选标签
+    filterTag(value, row) {
+      return row.status === value;
+    },
+    // 编辑信息
+    handleEdit(id, index, row) {
+      this.idx = index;
+      this.currentId = id;
+      this.timePickerValue = [];
+      // 点击获取商品详情
+      this.$axios
+        .get(
+          this.apiUrl + "/g01jfsc_zk65M/product/getProductInfo?product_id=" + id
+        )
+        .then(res => {
+          if (res.data.code == 200) {
+            let imgList = JSON.parse(res.data.data.product_img);
+            let imgListShop = JSON.parse(res.data.data.picture);
+            this.imgListNoHeader = JSON.parse(res.data.data.product_img);
+            this.imgShopNoHeader = JSON.parse(res.data.data.picture);
+            if (res.data.data.video) {
+              this.videoForm.Video = this.apiUrl + res.data.data.video;
+            } else {
+              this.videoForm.Video = "";
+            }
+            console.log(this.imgListNoHeader);
+
+            for (var i = 0; i < imgList.length; i++) {
+              imgList[i].url = this.apiUrl + imgList[i].url;
+            }
+            for (var i = 0; i < imgListShop.length; i++) {
+              imgListShop[i].url = this.apiUrl + imgListShop[i].url;
+            }
+            this.timePickerValue.push(res.data.data.start_time);
+            this.timePickerValue.push(res.data.data.end_time);
+            this.$nextTick(function() {
+              this.form = {
+                img_list: imgList,
+                img_list_shop: imgListShop,
+                product_name: res.data.data.product_name,
+                point_needed: res.data.data.point_needed,
+                timePickerValue: this.timePickerValue,
+                start_time: res.data.data.start_time,
+                end_time: res.data.data.end_time,
+                description: res.data.data.description,
+                declaration: res.data.data.declaration,
+                product_category_name: res.data.data.product_category_name,
+                link: res.data.data.link,
+                ticket_code: res.data.data.ticket_code,
+                area_id: res.data.data.area_id
+              };
+              this.editVisible = true;
+            });
+          }
+        });
+    },
+    // 删除信息
+    handleDelete(id, index, row) {
+      this.idx = index;
+      this.currentId = id;
+      this.delVisible = true;
+    },
+    // 批量删除
+    delAll() {
+      this.deleteIdArr = [];
+      const length = this.multipleSelection.length;
+      if (length == 0) {
+        this.$message.error("请选择删除项！");
+      } else {
+        let str = "";
+        this.del_list = this.del_list.concat(this.multipleSelection);
+        for (let i = 0; i < length; i++) {
+          str += this.multipleSelection[i].product_name + " ";
+          this.deleteIdArr.push(this.multipleSelection[i].product_id);
+        }
+        this.$axios
+          .post(this.apiUrl + "/g01jfsc_zk65M/product/deleteProduct", {
+            product_id: this.deleteIdArr,
+            paramsSerializer: product_id => {
+              return qs.stringify(product_id, { indices: false });
+            }
+          })
+          .then(res => {
+            if (res.data.code == 200) {
+              this.getData();
+              console.log(this.tableData);
+              this.$message.success("删除成功!");
+              this.multipleSelection = [];
+              this.deleteIdArr = [];
+            } else {
+              this.$message.warn("删除失败!");
+            }
+          });
+      }
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+    // 保存编辑
+    saveEdit(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          if (
+            this.imgListNoHeader.length == 0 ||
+            this.imgShopNoHeader.length == 0 ||
+            this.videoForm.Video == "" ||
+            this.videoForm.Video == null
+          ) {
+            this.$message("视频图片不能为空！请重新上传！");
+          } else {
+            // 发送修改商品信息请求
+            console.log(this.imgListNoHeader);
+            this.$axios
+              .put(this.apiUrl + "/g01jfsc_zk65M/product/updateProduct", {
+                product_id: this.currentId,
+                product_name: this.form.product_name,
+                start_time: this.form.timePickerValue[0],
+                end_time: this.form.timePickerValue[1],
+                point_needed: this.form.point_needed,
+                description: this.form.description,
+                product_category_name: this.form.product_category_name,
+                link: this.form.link,
+                ticket_code: this.form.ticket_code,
+                declaration: this.form.declaration,
+                picture: this.imgShopNoHeader,
+                product_img: this.imgListNoHeader,
+                video: this.videoNoHeader,
+                area_id: this.form.area_id
+              })
+              .then(res => {
+                if (res.data.code == 200) {
+                  this.getData();
+                  this.editVisible = false;
+                  this.$message.success(`修改第 ${this.idx + 1} 行成功`);
+                  this.imgListNoHeader = [];
+				  this.imgShopNoHeader = [];
+				  this.txtList = [];
+				  this.form = {};
+                } else {
+                  this.$message.warn("修改失败，请稍后重试！");
+                }
+              });
+          }
+        } else {
+          console.log("error submit!!");
+          console.log(this.form.img_list);
+          return false;
+        }
+      });
+    },
+    // 保存新增
+    saveAdd(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          if (
+            this.imgListNoHeader.length == 0 ||
+            this.imgShopNoHeader.length == 0 ||
+            this.videoForm.Video == "" ||
+            this.videoForm.Video == null
+          ) {
+            this.$message("视频图片不能为空！请重新上传！");
+            console.log(this.imgListNoHeader);
+            console.log(this.imgShopNoHeader);
+            console.log(this.videoForm);
+          } else {
+            this.$axios
+              .post(this.apiUrl + "/g01jfsc_zk65M/product/addProduct", {
+                product_name: this.formAdd.product_name,
+                start_time: this.formAdd.timePickerValue[0],
+                end_time: this.formAdd.timePickerValue[1],
+                point_needed: this.formAdd.point_needed,
+                description: this.formAdd.description,
+                product_category_name: this.formAdd.product_category_name,
+                link: this.formAdd.link,
+                ticket_code: this.formAdd.ticket_code,
+                declaration: this.formAdd.declaration,
+                picture: this.imgShopNoHeader,
+                product_img: this.imgListNoHeader,
+                video: this.videoNoHeader,
+                area_id: this.formAdd.area_id
+              })
+              .then(res => {
+                if (res.data.code == 200) {
+                  this.getData();
+                  this.addVisible = false;
+                  this.$message.success(`添加成功`);
+                  this.imgListNoHeader = [];
+				  this.imgShopNoHeader = [];
+				  this.formAdd = {};
+                  this.formAdd.img_list = [];
+				  this.formAdd.img_list_shop = [];
+				  this.txtList = [];
+                  this.$refs["formAdd"].resetFields();
+                } else {
+                  this.$message.warn(`添加失败`);
+                }
+              });
+          }
+        } else {
+          console.log("保存失败!!");
+          return false;
+        }
+      });
+    },
+    // 确定删除
+    deleteRow() {
+      this.deleteIdArr.push(this.currentId);
+      this.$axios
+        .post(this.apiUrl + "/g01jfsc_zk65M/product/deleteProduct", {
+          product_id: this.deleteIdArr,
+          paramsSerializer: product_id => {
+            return qs.stringify(product_id, { indices: false });
+          }
+        })
+        .then(res => {
+          if (res.data.code == 200) {
+            this.getData();
+            this.tableData.splice(this.idx, 1);
+            this.$message.success("删除成功");
+            this.delVisible = false;
+            this.deleteIdArr = [];
+          }
+        });
+    },
+    // 移除文件
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+      if (fileList.length == 0) {
+        this.$message("图片不能为空！");
+      }
+    },
+    beforeRemove(file, fileList) {
+      for (var i = 0; i < fileList.length; i++) {
+        if (fileList[i] === file) {
+          //表示数组里面有这个元素
+          console.log(i);
+          this.imgListNoHeader.splice(i, 1);
+        }
+      }
+    },
+    beforeRemoveShopImg(file, fileList) {
+      for (var i = 0; i < fileList.length; i++) {
+        if (fileList[i] === file) {
+          //表示数组里面有这个元素
+          console.log(i);
+          this.imgShopNoHeader.splice(i, 1);
+        }
+      }
+    },
+    handlePictureCardPreview(file) {
+      this.dialogImageUrl = file.url;
+      this.dialogVisible = true;
+    },
+    // 新增
+    addAction() {
+      this.imgListNoHeader = [];
+      this.imgShopNoHeader = [];
+      this.form = {};
+      this.videoForm.Video = "";
+      this.addVisible = true;
+    },
+    filterDate() {
+      console.log(this.value5);
+      if (!this.value5) {
+        this.getData();
+      } else {
+        this.$axios
+          .get(
+            this.apiUrl +
+              "/g01jfsc_zk65M/product/getProductList?page_size=" +
+              this.pageSize +
+              "&index=" +
+              this.cur_page +
+              "&start_time=" +
+              this.value5[0] +
+              "&end_time=" +
+              this.value5[1]
+          )
+          .then(res => {
+            console.log(res);
+            this.tableData = res.data.data.list;
+            this.totalNum = res.data.data.totalElements;
+            this.pageSize = res.data.data.pageSize;
+          });
+      }
+    },
+    limitTip() {
+      this.$message("图片数量已达最大限制！");
+    },
+    // 上传商品图片
+    uploadImg(res) {
+      var formData = new FormData();
+      formData.append("file", res.file);
+      this.$axios
+        .post(this.apiUrl + "/g01jfsc_zk65M/upload/imgUpload", formData)
+        .then(res => {
+          if (res.data.code == 200) {
+            this.$message.success("上传成功");
+            this.imgListNoHeader.push(res.data.data);
+            console.log(this.imgListNoHeader);
+          } else {
+            this.$message.warn("上传失败！请重试");
+          }
+        });
+    },
+    // 上传商家图片
+    uploadImgShop(res) {
+      var formData = new FormData();
+      formData.append("file", res.file);
+      this.$axios
+        .post(this.apiUrl + "/g01jfsc_zk65M/upload/imgUpload", formData)
+        .then(res => {
+          if (res.data.code == 200) {
+            this.$message.success("上传成功");
+            this.imgShopNoHeader.push(res.data.data);
+            console.log(this.imgShopNoHeader);
+          }
+        });
+    },
+    // 上传商品视频
+    uploadVideo(res) {
+      var formData = new FormData();
+      formData.append("file", res.file);
+      this.$axios
+        .post(this.apiUrl + "/g01jfsc_zk65M/upload/videoUpload ", formData)
+        .then(res => {
+          if (res.data.code == 200) {
+            this.form.video = res.data.data;
+            this.videoForm.Video = this.apiUrl + res.data.data;
+            this.videoNoHeader = res.data.data;
+            this.$message.success("上传成功");
+            console.log(this.form);
+            console.log(this.videoForm);
+          }
+        });
+    },
+    handleVideoSuc() {
+      this.$message.success("视频传输完成！");
+      console.log("传输完成!");
+    },
+    handleSizeChange(val) {
+      this.pageSize = val;
+      this.getData();
+    },
+    beforeUploadVideo(file) {
+      const isLt10M = file.size / 1024 / 1024 < 10;
+      if (
+        [
+          "video/mp4",
+          "video/ogg",
+          "video/flv",
+          "video/avi",
+          "video/wmv",
+          "video/rmvb"
+        ].indexOf(file.type) == -1
+      ) {
+        this.$message.error("请上传正确的视频格式");
+        return false;
+      }
+      if (!isLt10M) {
+        this.$message.error("上传视频大小不能超过10MB哦!");
+        return false;
+      }
+	},
+	beforeTxtUpload(file) {
+	  const isLt10M = file.size / 1024 / 1024 < 5;
+	  console.log(file.type);
+      if (
+        [
+          "text/plain"
+        ].indexOf(file.type) == -1
+      ) {
+        this.$message.error("请上传正确的文本格式");
+        return false;
+      }
+      if (!isLt10M) {
+        this.$message.error("上传视频大小不能超过5MB哦!");
+        return false;
+      }
+    },
+    uploadVideoProcess(event, file, fileList) {
+      this.videoFlag = true;
+      this.videoUploadPercent = file.percentage.toFixed(0);
+    },
+
+    uploadTxt(file, fileList) {
+      console.log(file);
+      var that = this;
+      var txtData = "";
+      var reader = new FileReader(); //这是核心！！读取操作都是由它完成的
+      reader.readAsText(file.file);
+      reader.onload = function(oFREvent) {
+        //读取完毕从中取值
+        var pointsTxt = oFREvent.target.result.split("\n");
+        txtData = pointsTxt.join(",");
+		if(that.form.ticket_code!=""){
+        	that.form.ticket_code = that.form.ticket_code+','+txtData;
+		}else{
+			that.form.ticket_code =	txtData;
+		}
+		that.txtList = [];
+      };
+	},
+	uploadTxtAdd(file, fileList) {
+      console.log(file);
+      var that = this;
+      var txtData = "";
+      var reader = new FileReader(); //这是核心！！读取操作都是由它完成的
+      reader.readAsText(file.file);
+      reader.onload = function(oFREvent) {
+        //读取完毕从中取值
+        var pointsTxt = oFREvent.target.result.split("\n");
+		txtData = pointsTxt.join(",");
+		if(that.formAdd.ticket_code!=""){
+        	that.formAdd.ticket_code = that.formAdd.ticket_code+','+txtData;
+		}else{
+			that.formAdd.ticket_code =	txtData;
+		}
+		that.txtList = [];
+      };
+    }
+  }
+};
 </script>
 
 <style scope>
-	.handle-box {
-		margin-bottom: 20px;
-	}
+.handle-box {
+  margin-bottom: 20px;
+}
 
-	.handle-select {
-		width: 120px;
-	}
+.handle-select {
+  width: 120px;
+}
 
-	.handle-input {
-		width: 300px !important;
-		display: inline-block !important;
-	}
+.handle-input {
+  width: 300px !important;
+  display: inline-block !important;
+}
 
-	.del-dialog-cnt {
-		font-size: 16px;
-		text-align: center
-	}
+.del-dialog-cnt {
+  font-size: 16px;
+  text-align: center;
+}
 
-	.table {
-		width: 100%;
-		font-size: 14px;
-	}
-	.el-upload--text{
-		width: 100px;
-		height: 100px;
-		line-height: 100px;
-	}
-	.el-upload--text .el-icon-plus{
-		font-size: 28px;
-	}
-	.el-form-item__content{
-		font-size: 13px !important;
-	}
+.table {
+  width: 100%;
+  font-size: 14px;
+}
+.el-upload--text {
+  width: 100px;
+  height: 100px;
+  line-height: 100px;
+}
+.el-upload--text .el-icon-plus {
+  font-size: 28px;
+}
+.el-form-item__content {
+  font-size: 13px !important;
+}
+.upload-demo {
+  margin-top: 10px;
+}
+.upload-demo .el-upload--text {
+  width: 150px;
+  height: 32px;
+  line-height: 32px;
+  border: 0;
+}
 </style>
