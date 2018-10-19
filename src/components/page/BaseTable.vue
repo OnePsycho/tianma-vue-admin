@@ -515,7 +515,8 @@ export default {
             this.imgListNoHeader = JSON.parse(res.data.data.product_img);
             this.imgShopNoHeader = JSON.parse(res.data.data.picture);
             if (res.data.data.video) {
-              this.videoForm.Video = this.apiUrl + res.data.data.video;
+			  this.videoForm.Video = this.apiUrl + res.data.data.video;
+			  this.videoNoHeader = res.data.data.video;
             } else {
               this.videoForm.Video = "";
             }
@@ -888,7 +889,8 @@ export default {
       reader.onload = function(oFREvent) {
         //读取完毕从中取值
         var pointsTxt = oFREvent.target.result.split("\n");
-        txtData = pointsTxt.join(",");
+		txtData = pointsTxt.join(",").replace(/\ +/g,"");
+		console.log(txtData);
 		if(that.form.ticket_code!=""){
         	that.form.ticket_code = that.form.ticket_code+','+txtData;
 		}else{
@@ -906,7 +908,7 @@ export default {
       reader.onload = function(oFREvent) {
         //读取完毕从中取值
         var pointsTxt = oFREvent.target.result.split("\n");
-		txtData = pointsTxt.join(",");
+		txtData = pointsTxt.join(",").replace(/\ +/g,"");
 		if(that.formAdd.ticket_code!=""){
         	that.formAdd.ticket_code = that.formAdd.ticket_code+','+txtData;
 		}else{
