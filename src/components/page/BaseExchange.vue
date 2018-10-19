@@ -56,7 +56,7 @@
 		</div>
 
 		<!-- 编辑弹出框 -->
-		<el-dialog title="详情(不可编辑)" :visible.sync="editVisible" width="580px">
+		<el-dialog title="详情(不可编辑)" :visible.sync="editVisible" width="620px">
 			<el-form ref="form" :model="form" label-width="100px" :disabled="true">
 				<el-form-item label="商品图片" prop="product_img">
 					<el-upload action="" list-type="picture-card" 
