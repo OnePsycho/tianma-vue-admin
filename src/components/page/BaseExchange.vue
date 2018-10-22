@@ -8,10 +8,10 @@
 		</div>
 		<div class="container">
 			<div class="handle-box">
-				<el-select v-model="select_cate" placeholder="商品类别" class="handle-select mr10">
-					<el-option key="1" label="未使用" value="未使用"></el-option>
-					<el-option key="2" label="已使用" value="已使用"></el-option>
-					<el-option key="3" label="已过期" value="已过期"></el-option>
+				<el-select v-model="select_cate" placeholder="商品类别" class="handle-select mr10" @change="selectChange">
+					<el-option key="1" label="未使用" value="3"></el-option>
+					<el-option key="2" label="已使用" value="2"></el-option>
+					<el-option key="3" label="已过期" value="1"></el-option>
 					<el-option key="4" label="全部" value=""></el-option>
 				</el-select>
 				<el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
@@ -48,7 +48,7 @@
 			</el-table>
 			<div class="pagination">
 				<el-pagination background @current-change="handleCurrentChange"
-					@size-change="handleSizeChange" 
+					@size-change="handleSizeChange"  :current-page="cur_page"
 					layout="total, sizes, prev, pager, next, jumper" :total="totalNum" align="center" :page-sizes="[5, 10, 15, 20]">
 				</el-pagination>
 			</div>
@@ -137,6 +137,7 @@
 				url: '',
 				tableData: [],
 				cur_page: 1,
+				select_page:1,
 				apiUrl:domain.apiUrl,
 				multipleSelection: [],
 				select_cate: '',
@@ -174,7 +175,7 @@
 				return this.tableData.filter((d) => {
 					let is_del = false;
 					if (!is_del) {
-						if (d.status.indexOf(this.select_cate) > -1 && (d.product_name.indexOf(this.select_word) > -1 ||d.phone.indexOf(this.select_word) > -1  ||
+						if ((d.product_name.indexOf(this.select_word) > -1 ||d.phone.indexOf(this.select_word) > -1  ||
 								d.member_nickname.indexOf(this.select_word) > -1 ||d.ticket_code.indexOf(this.select_word) > -1) // >-1代表有符合条件的item
 						) {
 							return d;
@@ -187,7 +188,30 @@
 			// 分页导航
 			handleCurrentChange(val) {
 				this.cur_page = val;
-				this.getData();
+     			this.select_page = val;
+				if(this.select_cate!=""){
+					this.selectChangeByPage(this.select_cate);
+				}else{
+					this.getData();
+				}
+			},
+			selectChange(val){
+				this.cur_page = 1;
+				this.select_page = 1;
+				this.url = this.apiUrl+'/g01jfsc_zk65M/exchange_order/getExchangeOrderList&index='+this.select_page+'&page_size='+this.pageSize+'&status='+val;
+				this.$axios.get(this.url).then((res) => {
+					console.log(res);
+					this.tableData = res.data.data.list;
+					this.totalNum = res.data.data.totalElements;
+				})
+			},
+			selectChangeByPage(val){
+				this.url = this.apiUrl+'/g01jfsc_zk65M/exchange_order/getExchangeOrderList&index='+this.select_page+'&page_size='+this.pageSize+'&status='+val;
+				this.$axios.get(this.url).then((res) => {
+					console.log(res);
+					this.tableData = res.data.data.list;
+					this.totalNum = res.data.data.totalElements;
+				})
 			},
 			// 获取商品信息
 			getData() {

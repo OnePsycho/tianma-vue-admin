@@ -8,11 +8,11 @@
 		</div>
 		<div class="container">
 			<div class="handle-box">
-				<el-select v-model="select_cate" placeholder="商品类别" class="handle-select mr10">
+				<el-select v-model="select_cate" placeholder="商品类别" class="handle-select mr10" @change="selectedChange">
 					<el-option v-for="(item,index) in classifyList"
 					:key="index"
 					:label="item.name"
-					:value="item.name">
+					:value="item.product_category_id">
 					</el-option>
 					<el-option label="全部" value=""></el-option>
 
@@ -67,8 +67,8 @@
 			</el-table>
 			<div class="pagination">
 				<el-pagination background @current-change="handleCurrentChange"
-					@size-change="handleSizeChange" 
-					layout="total, sizes, prev, pager, next, jumper" :total="totalNum" align="center" :page-sizes="[5, 10, 15, 20]">
+					@size-change="handleSizeChange"   :current-page="cur_page"
+					layout="total, sizes, prev, pager, next, jumper"  :total="totalNum" align="center" :page-sizes="[5, 10, 15, 20]">
 				</el-pagination>
 			</div>
 		</div>
@@ -292,6 +292,7 @@ export default {
       tableData: [],
       apiUrl: domain.apiUrl,
       cur_page: 1,
+      select_page:1,
       multipleSelection: [],
       select_cate: "",
       select_word: "",
@@ -412,7 +413,8 @@ export default {
       imgListNoHeader: [],
       imgShopNoHeader: [],
       deleteIdArr: [],
-      videoNoHeader: ""
+      videoNoHeader: "",
+      filterList:[]
     };
   },
   created() {
@@ -423,7 +425,8 @@ export default {
     $route(to) {
       if (to.path == "/table") {
         this.getData(); //当前页面展示即刷新数据
-        this.value5 = "";
+        this.value5 = "";      
+        this.select_cate = "全部";  
       }
     }
   },
@@ -434,22 +437,11 @@ export default {
     // 筛选部分
     data() {
       return this.tableData.filter(d => {
-        let is_del = false;
-        // 					for (let i = 0; i < this.del_list.length; i++) {
-        // 						if (d.product_name === this.del_list[i].product_name || d.product_category_name === this.del_list[i].product_category_name) {
-        // 							is_del = true;
-        // 							break;
-        // 						}
-        // 					}
-        if (!is_del) {
-          if (
-            d.product_category_name.indexOf(this.select_cate) > -1 &&
-            (d.product_name.indexOf(this.select_word) > -1 ||
+          if ((d.product_name.indexOf(this.select_word) > -1 ||
               d.product_category_name.indexOf(this.select_word) > -1) // >-1代表有符合条件的item
-          ) {
+            ) {
             return d;
           }
-        }
       });
     }
   },
@@ -457,6 +449,7 @@ export default {
     // 分页导航
     handleCurrentChange(val) {
       this.cur_page = val;
+      this.select_page = val;
       this.getData();
     },
 
@@ -493,6 +486,31 @@ export default {
         .then(res => {
           this.areaList = res.data.data.list;
         });
+    },
+    getDataByCategory(id){
+      this.url =
+        this.apiUrl +
+        "/g01jfsc_zk65M/product/getProductList?page_size=" +
+        this.pageSize +
+        "&index=" +
+        this.select_page+
+         "&product_category_id=" +
+        id;
+      this.$axios
+        .get(this.url, {
+          page: this.cur_page
+        })
+        .then(res => {
+          this.tableData = res.data.data.list;
+          this.loading = false;
+          this.totalNum = res.data.data.totalElements;
+          this.pageSize = res.data.data.pageSize;
+        });
+    },
+    selectedChange(val){
+      this.cur_page = 1;
+      this.select_page = 1;
+      this.getDataByCategory(val);
     },
     // 筛选标签
     filterTag(value, row) {
