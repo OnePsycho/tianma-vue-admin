@@ -14,7 +14,7 @@
 					<el-option key="3" label="已过期" value="1"></el-option>
 					<el-option key="4" label="全部" value=""></el-option>
 				</el-select>
-				<el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
+				<el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10" @input="select_word_change"></el-input>
 				<!-- <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button> -->
 				<el-button type="success" class="handle-del mr10" @click="filterDate">筛选</el-button>
 				<!-- <el-button type="primary" class="handle-del mr10" @click="showAllDatas" style="margin-left: 0px;">显示全部</el-button> -->
@@ -172,6 +172,14 @@
 		components:{
 			quillEditor
 		},
+		  watch: {
+			//监听路由变化
+			$route(to) {
+			if (to.path == "/exchange") {
+				this.getData(); //当前页面展示即刷新数据
+			}
+			}
+		},
 		computed: {
 			// 筛选部分
 			data() {
@@ -183,9 +191,15 @@
 			handleCurrentChange(val) {
 				this.cur_page = val;
      			this.select_page = val;
-				this.filter_page = val;
+				if(this.select_word!=""||this.select_cate!=""){
+					this.filter_page = val;
+				}
 				this.filterDate();
+				
 			},
+			select_word_change(val){
+				this.filter_page = 1;
+				},
 			selectChange(val){
 				this.cur_page = 1;
 				this.select_page = 1;
@@ -202,6 +216,8 @@
 			},
 			// 获取商品信息
 			getData() {
+				this.select_cate="";
+				this.select_word="";
 				this.url = this.apiUrl+'/g01jfsc_zk65M/exchange_order/getExchangeOrderList&index='+this.cur_page+'&page_size='+this.pageSize;
 				this.$axios.get(this.url).then((res) => {
 					console.log(res);
@@ -322,27 +338,27 @@
 				this.pageSize = val;
 				this.filterDate();
 			},
-			    filterDate() {
-						this.$axios
-						.get(
-							this.apiUrl +
-							"/g01jfsc_zk65M/exchange_order/getExchangeOrderList?page_size=" +
-							this.pageSize +
-							"&index=" +
-							this.filter_page+
-							"&keyword="+
-							this.select_word+
-							"&status="+
-							this.select_cate
-						)
-						.then(res => {
-							console.log(res);
-							this.tableData = res.data.data.list;
-							this.totalNum = res.data.data.totalElements;
-							this.pageSize = res.data.data.pageSize;
-						});
-					
-					},
+			filterDate() {
+				this.$axios
+				.get(
+					this.apiUrl +
+					"/g01jfsc_zk65M/exchange_order/getExchangeOrderList?page_size=" +
+					this.pageSize +
+					"&index=" +
+					this.filter_page+
+					"&keyword="+
+					this.select_word+
+					"&status="+
+					this.select_cate
+				)
+				.then(res => {
+					console.log(res);
+					this.tableData = res.data.data.list;
+					this.totalNum = res.data.data.totalElements;
+					this.pageSize = res.data.data.pageSize;
+				});
+			
+			},
 		}
 	}
 </script>

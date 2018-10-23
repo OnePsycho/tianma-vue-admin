@@ -3,13 +3,13 @@
 		<div class="crumbs">
 			<el-breadcrumb separator="/">
 				<el-breadcrumb-item>
-					<i class="el-icon-goods"></i>  轮播管理</el-breadcrumb-item>
+					<i class="el-icon-picture-outline"></i>  轮播管理</el-breadcrumb-item>
 			</el-breadcrumb>
 		</div>
 		<div class="container">
 			<div class="handle-box">
 
-				<el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
+				<el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"  @input="select_word_change"></el-input>
 				<!-- <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button> -->
 				<el-button type="primary" class="handle-del mr10" @click="filterDate">筛选</el-button>
 				<el-button type="primary" class="handle-del mr10" @click="getData">重置</el-button>
@@ -181,7 +181,9 @@
 				this.filter_page = val;
 				this.filterDate();
 			},
-			// 获取 easy-mock 的模拟数据
+			select_word_change(val){
+      			this.filter_page = 1;
+    		},
 			getData() {
 				this.select_word = "";
 				this.url = this.apiUrl+'/g01jfsc_zk65M/slider/getSliderList&index='+this.cur_page+'&page_size='+this.pageSize;
@@ -382,6 +384,10 @@
 				this.tableData = res.data.data.list;
 				this.totalNum = res.data.data.totalElements;
 				this.pageSize = res.data.data.pageSize;
+				 if(res.data.data.list.length==0){
+					this.filter_page = 1;
+					this.filterDate();
+				}
 			});
 		
 		},

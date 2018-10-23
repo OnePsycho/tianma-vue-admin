@@ -17,11 +17,12 @@
 					<el-option label="全部" value=""></el-option>
 
 				</el-select>
-				<el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
+				<el-input v-model="select_word" placeholder="筛选关键词" @input="select_word_change" class="handle-input mr10"></el-input>
 
 				<el-date-picker
 					v-model="value5"
 					type="datetimerange"
+          @input="select_word_change"
 					:picker-options="pickerOptions2"
 					range-separator="至"
 					value-format="yyyy-MM-dd HH:mm:ss"
@@ -443,8 +444,13 @@ export default {
     handleCurrentChange(val) {
       this.cur_page = val;
       this.select_page = val;
-      this.filter_page = val;
+      if(this.select_word!=""||this.select_cate!=""){
+					this.filter_page = val;
+				}
       this.filterDate();
+    },
+    select_word_change(val){
+      this.filter_page = 1;
     },
 
     getData() {
