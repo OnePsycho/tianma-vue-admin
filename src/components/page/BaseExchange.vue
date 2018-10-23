@@ -16,7 +16,7 @@
 				</el-select>
 				<el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
 				<!-- <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button> -->
-				<!-- <el-button type="success" class="handle-del mr10" @click="addAction">新增</el-button> -->
+				<el-button type="success" class="handle-del mr10" @click="filterDate">筛选</el-button>
 				<!-- <el-button type="primary" class="handle-del mr10" @click="showAllDatas" style="margin-left: 0px;">显示全部</el-button> -->
 				<el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAll" style="margin-left: 0px;">批量删除</el-button>
 
@@ -26,6 +26,8 @@
 				<el-table-column prop="exchange_order_id" label="订单ID"  align="center" width="80">
 				</el-table-column>
 				<el-table-column prop="order_code" label="订单编号"  align="center">
+				</el-table-column>
+				<el-table-column prop="product_name" label="商品名称"  align="center">
 				</el-table-column>
 				<el-table-column prop="end_time" label="结束时间"  sortable align="center">
 				</el-table-column>
@@ -138,6 +140,7 @@
 				tableData: [],
 				cur_page: 1,
 				select_page:1,
+				filter_page:1,
 				apiUrl:domain.apiUrl,
 				multipleSelection: [],
 				select_cate: '',
@@ -172,16 +175,7 @@
 		computed: {
 			// 筛选部分
 			data() {
-				return this.tableData.filter((d) => {
-					let is_del = false;
-					if (!is_del) {
-						if ((d.product_name.indexOf(this.select_word) > -1 ||d.phone.indexOf(this.select_word) > -1  ||
-								d.member_nickname.indexOf(this.select_word) > -1 ||d.ticket_code.indexOf(this.select_word) > -1) // >-1代表有符合条件的item
-						) {
-							return d;
-						}
-					}
-				})
+				return this.tableData;
 			}
 		},
 		methods: {
@@ -189,21 +183,14 @@
 			handleCurrentChange(val) {
 				this.cur_page = val;
      			this.select_page = val;
-				if(this.select_cate!=""){
-					this.selectChangeByPage(this.select_cate);
-				}else{
-					this.getData();
-				}
+				this.filter_page = val;
+				this.filterDate();
 			},
 			selectChange(val){
 				this.cur_page = 1;
 				this.select_page = 1;
-				this.url = this.apiUrl+'/g01jfsc_zk65M/exchange_order/getExchangeOrderList&index='+this.select_page+'&page_size='+this.pageSize+'&status='+val;
-				this.$axios.get(this.url).then((res) => {
-					console.log(res);
-					this.tableData = res.data.data.list;
-					this.totalNum = res.data.data.totalElements;
-				})
+				this.filter_page = 1;
+				this.filterDate();
 			},
 			selectChangeByPage(val){
 				this.url = this.apiUrl+'/g01jfsc_zk65M/exchange_order/getExchangeOrderList&index='+this.select_page+'&page_size='+this.pageSize+'&status='+val;
@@ -333,8 +320,29 @@
 			// 切换页码
 			handleSizeChange(val) {
 				this.pageSize = val;
-				this.getData();
-			}
+				this.filterDate();
+			},
+			    filterDate() {
+						this.$axios
+						.get(
+							this.apiUrl +
+							"/g01jfsc_zk65M/exchange_order/getExchangeOrderList?page_size=" +
+							this.pageSize +
+							"&index=" +
+							this.filter_page+
+							"&keyword="+
+							this.select_word+
+							"&status="+
+							this.select_cate
+						)
+						.then(res => {
+							console.log(res);
+							this.tableData = res.data.data.list;
+							this.totalNum = res.data.data.totalElements;
+							this.pageSize = res.data.data.pageSize;
+						});
+					
+					},
 		}
 	}
 </script>

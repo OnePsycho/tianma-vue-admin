@@ -11,6 +11,8 @@
 
 				<el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
 				<!-- <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button> -->
+				<el-button type="primary" class="handle-del mr10" @click="filterDate">筛选</el-button>
+				<el-button type="primary" class="handle-del mr10" @click="getData">重置</el-button>
 				<el-button type="success" class="handle-del mr10" @click="addAction">新增</el-button>
 				<!-- <el-button type="primary" class="handle-del mr10" @click="showAllDatas" style="margin-left: 0px;">显示全部</el-button> -->
 				<el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAll" style="margin-left: 0px;">批量删除</el-button>
@@ -112,6 +114,7 @@
 				tableData: [],
 				apiUrl:domain.apiUrl,
 				cur_page: 1,
+				filter_page:1,
 				multipleSelection: [],
 				select_word: '',
 				del_list: [],
@@ -161,27 +164,19 @@
 		computed: {
 			// 筛选部分
 			data() {
-				return this.tableData.filter((d) => {
-					let is_del = false;
-					if (!is_del) {
-						if (d.name.indexOf(this.select_word) > -1 ||
-								d.description.indexOf(this.select_word) > -1 // >-1代表有符合条件的item
-						) {
-							return d;
-						}
-					}
-				})
+				return this.tableData;
 			}
 		},
 		methods: {
 			// 分页导航
 			handleCurrentChange(val) {
 				this.cur_page = val;
-				this.getData();
+				this.filter_page = val;
+				this.filterDate();
 			},
 			// 获取 easy-mock 的模拟数据
 			getData() {
-				// 开发环境使用 easy-mock 数据，正式环境使用 json 文件
+				this.select_word = "";
 				this.url = this.apiUrl+'/g01jfsc_zk65M/area/getAreaList&index='+this.cur_page+'&page_size='+this.pageSize;
 				this.$axios.get(this.url).then((res) => {
 					this.tableData = res.data.data.list;
@@ -344,8 +339,27 @@
 			},
 			handleSizeChange(val) {
 				this.pageSize = val;
-				this.getData();
+				this.filterDate();
 			},
+			filterDate() {
+			this.$axios
+			.get(
+				this.apiUrl +
+				"/g01jfsc_zk65M/area/getAreaList?page_size=" +
+				this.pageSize +
+				"&index=" +
+				this.filter_page+
+				"&keyword="+
+				this.select_word
+			)
+			.then(res => {
+				console.log(res);
+				this.tableData = res.data.data.list;
+				this.totalNum = res.data.data.totalElements;
+				this.pageSize = res.data.data.pageSize;
+			});
+		
+		},
 		}
 	}
 </script>

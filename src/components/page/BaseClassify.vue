@@ -11,7 +11,10 @@
 
 				<el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
 				<!-- <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button> -->
+				<el-button type="primary" class="handle-del mr10" @click="filterAction">筛选</el-button>
+				<el-button type="primary" class="handle-del mr10" @click="getData">重置</el-button>
 				<el-button type="success" class="handle-del mr10" @click="addVisible = true">新增</el-button>
+				<!-- <el-button tprimaryimary" class="handle-del mr10" @click="showAllDatas" 筛选yle="margin-left: 0px;">显示全部</el-button> -->
 				<!-- <el-button type="primary" class="handle-del mr10" @click="showAllDatas" style="margin-left: 0px;">显示全部</el-button> -->
 				<el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAll" style="margin-left: 0px;">批量删除</el-button>
 
@@ -35,7 +38,7 @@
 			<div class="pagination">
 				<el-pagination background @current-change="handleCurrentChange"
 					@size-change="handleSizeChange" 
-					layout="total, sizes, prev, pager, next, jumper" :total="totalNum" align="center" :page-sizes="[5, 10, 15, 20]">
+					layout="total, sizes, prev, pager, next, jumper" :total="totalNum" align="center" :page-sizes="[20, 40]">
 				</el-pagination>
 			</div>
 		</div>
@@ -130,17 +133,7 @@ export default {
   computed: {
     // 筛选部分
     data() {
-      return this.tableData.filter(d => {
-        let is_del = false;
-        if (!is_del) {
-          if (
-            d.name.indexOf(this.select_word) > -1 ||
-            d.create_time.indexOf(this.select_word) > -1 // >-1代表有符合条件的item
-          ) {
-            return d;
-          }
-        }
-      });
+      return this.tableData;
     }
   },
   methods: {
@@ -149,9 +142,23 @@ export default {
       this.cur_page = val;
       this.getData();
     },
-    // 获取 easy-mock 的模拟数据
+    filterAction(){
+      console.log(this.select_word);
+        this.url =
+        this.apiUrl +
+        "/g01jfsc_zk65M/product_category/getProductCategoryList?index=1" +
+        "&page_size=" +
+        this.pageSize+
+         "&keyword="+
+         this.select_word;
+      this.$axios.get(this.url).then(res => {
+        this.tableData = res.data.data.list;
+        this.loading = false;
+        this.totalNum = res.data.data.totalElements;
+      });
+    },
     getData() {
-      // 开发环境使用 easy-mock 数据，正式环境使用 json 文件
+      this.select_word = "";
       this.url =
         this.apiUrl +
         "/g01jfsc_zk65M/product_category/getProductCategoryList&index=" +

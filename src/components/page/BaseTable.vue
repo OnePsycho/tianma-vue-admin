@@ -31,6 +31,7 @@
 				</el-date-picker>
 				
 				<el-button type="primary" class="handle-del mr10" @click="filterDate">筛选</el-button>
+				<el-button type="primary" class="handle-del mr10" @click="getData">重置</el-button>
 				<el-button type="success" class="handle-del mr10" @click="addAction">新增</el-button>
 				<el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAll" style="margin-left: 0px;">批量删除</el-button>
 
@@ -126,7 +127,7 @@
 					<el-input v-model="form.link"></el-input>
 				</el-form-item>
 				<el-form-item label="商品券码" prop="ticket_code">
-					<el-input v-model="form.ticket_code"></el-input>
+					<el-input v-model="form.ticket_code" placeholder="上传券码文件或者手动输入，券码之间英文逗号分隔，单个券码长度小于100"></el-input>
 					<el-upload
 						class="upload-demo"
 						action=""
@@ -222,7 +223,7 @@
 					<el-input v-model="formAdd.link"></el-input>
 				</el-form-item>
 				<el-form-item label="商品券码" prop="ticket_code">
-					<el-input v-model="formAdd.ticket_code"></el-input>
+					<el-input v-model="formAdd.ticket_code" placeholder="上传券码文件或者手动输入，券码之间英文逗号分隔，单个券码长度小于100"></el-input>
 					<el-upload
 						class="upload-demo"
 						action=""
@@ -265,8 +266,6 @@
 			</span>
 		</el-dialog>
 
-
-
 		<!-- 删除提示框 -->
 		<el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
 			<div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
@@ -293,6 +292,7 @@ export default {
       apiUrl: domain.apiUrl,
       cur_page: 1,
       select_page:1,
+      filter_page:1,
       multipleSelection: [],
       select_cate: "",
       select_word: "",
@@ -308,7 +308,7 @@ export default {
       editorOption: { placeholder: "使用规则、使用流程..." },
       editorOption2: { placeholder: "重要声明..." },
       form: {
-		img_list: [],
+		    img_list: [],
         img_list_shop: [],
         product_name: "",
         point_needed: "",
@@ -373,7 +373,6 @@ export default {
           }
         ]
       },
-      // value4: [new Date(2000, 10, 10, 10, 10), new Date(2000, 10, 11, 10, 10)],
       value5: "",
       // 表单填写规则
       rules: {
@@ -426,7 +425,7 @@ export default {
       if (to.path == "/table") {
         this.getData(); //当前页面展示即刷新数据
         this.value5 = "";      
-        this.select_cate = "全部";  
+        this.select_cate = "";  
       }
     }
   },
@@ -436,13 +435,7 @@ export default {
   computed: {
     // 筛选部分
     data() {
-      return this.tableData.filter(d => {
-          if ((d.product_name.indexOf(this.select_word) > -1 ||
-              d.product_category_name.indexOf(this.select_word) > -1) // >-1代表有符合条件的item
-            ) {
-            return d;
-          }
-      });
+      return this.tableData;
     }
   },
   methods: {
@@ -450,10 +443,14 @@ export default {
     handleCurrentChange(val) {
       this.cur_page = val;
       this.select_page = val;
-      this.getData();
+      this.filter_page = val;
+      this.filterDate();
     },
 
     getData() {
+      this.select_cate = "";
+      this.select_word = "";
+      this.value5 = ["",""];
       this.url =
         this.apiUrl +
         "/g01jfsc_zk65M/product/getProductList?page_size=" +
@@ -510,7 +507,8 @@ export default {
     selectedChange(val){
       this.cur_page = 1;
       this.select_page = 1;
-      this.getDataByCategory(val);
+      this.filter_page = 1;
+      this.filterDate();
     },
     // 筛选标签
     filterTag(value, row) {
@@ -777,19 +775,23 @@ export default {
     filterDate() {
       console.log(this.value5);
       if (!this.value5) {
-        this.getData();
-      } else {
+        this.value5 = ['',''];
+      } 
         this.$axios
           .get(
             this.apiUrl +
               "/g01jfsc_zk65M/product/getProductList?page_size=" +
               this.pageSize +
               "&index=" +
-              this.cur_page +
+              this.filter_page+
               "&start_time=" +
               this.value5[0] +
               "&end_time=" +
-              this.value5[1]
+              this.value5[1]+
+              "&keyword="+
+              this.select_word+
+              "&product_category_id="+
+              this.select_cate
           )
           .then(res => {
             console.log(res);
@@ -797,7 +799,7 @@ export default {
             this.totalNum = res.data.data.totalElements;
             this.pageSize = res.data.data.pageSize;
           });
-      }
+      
     },
     limitTip() {
       this.$message("图片数量已达最大限制！");
@@ -855,7 +857,7 @@ export default {
     },
     handleSizeChange(val) {
       this.pageSize = val;
-      this.getData();
+      this.filterDate();
     },
     beforeUploadVideo(file) {
       const isLt10M = file.size / 1024 / 1024 < 10;
