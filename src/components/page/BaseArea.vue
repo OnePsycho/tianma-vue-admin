@@ -180,7 +180,7 @@
 			// 获取 easy-mock 的模拟数据
 			getData() {
 				this.select_word = "";
-				this.url = this.apiUrl+'/g01jfsc_zk65M/area/getAreaList&index='+this.cur_page+'&page_size='+this.pageSize;
+				this.url = this.apiUrl+'/g01jfsc_zk65m/area/getAreaList?index='+this.cur_page+'&page_size='+this.pageSize;
 				this.$axios.get(this.url).then((res) => {
 					this.tableData = res.data.data.list;
 					this.loading = false;
@@ -221,7 +221,7 @@
 						str += this.multipleSelection[i].name + ' ';
 						this.deleteIdArr.push(this.multipleSelection[i].area_id);
 					}
-					this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/area/deleteArea',
+					this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/area/deleteArea',
 						{area_id: this.deleteIdArr,
 							paramsSerializer:area_id => {
 								return qs.stringify(area_id, { indices: false })}
@@ -243,7 +243,7 @@
 			saveEdit(formName) {
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
-						this.$axios.put(this.apiUrl+'/g01jfsc_zk65M/area/updateArea', {
+						this.$axios.put(this.apiUrl+'/g01jfsc_zk65m/area/updateArea', {
 							area_id:this.currentId,
 							name:this.form.name,
 							description:this.form.description,
@@ -265,7 +265,7 @@
 			saveAdd(formName) {
 				this.$refs[formName].validate((valid) => {
           if (valid) {
-						this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/area/addArea', {
+						this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/area/addArea', {
 							name: this.formAdd.name,
 							description:this.formAdd.description,
 							picture:this.imgUploadUrl
@@ -286,7 +286,7 @@
 			// 确定删除
 			deleteRow() {
 				this.deleteIdArr.push(this.currentId);
-				this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/area/deleteArea',
+				this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/area/deleteArea',
 				{area_id: this.deleteIdArr,
 				paramsSerializer:area_id => {
 					return qs.stringify(area_id, { indices: false })}
@@ -328,7 +328,7 @@
 				this.imgListNoHeader = [];
 				var formData = new FormData();
 				formData.append("file",res.file);
-				this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/upload/imgUpload',formData)
+				this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/upload/imgUpload',formData)
 				.then((res) => {
 					if(res.data.code==200){
 						this.$message.success("上传成功");
@@ -348,7 +348,7 @@
 			this.$axios
 			.get(
 				this.apiUrl +
-				"/g01jfsc_zk65M/area/getAreaList?page_size=" +
+				"/g01jfsc_zk65m/area/getAreaList?page_size=" +
 				this.pageSize +
 				"&index=" +
 				this.filter_page+

@@ -207,7 +207,7 @@
 				this.filterDate();
 			},
 			selectChangeByPage(val){
-				this.url = this.apiUrl+'/g01jfsc_zk65M/exchange_order/getExchangeOrderList&index='+this.select_page+'&page_size='+this.pageSize+'&status='+val;
+				this.url = this.apiUrl+'/g01jfsc_zk65m/exchange_order/getExchangeOrderList?index='+this.select_page+'&page_size='+this.pageSize+'&status='+val;
 				this.$axios.get(this.url).then((res) => {
 					console.log(res);
 					this.tableData = res.data.data.list;
@@ -218,7 +218,7 @@
 			getData() {
 				this.select_cate="";
 				this.select_word="";
-				this.url = this.apiUrl+'/g01jfsc_zk65M/exchange_order/getExchangeOrderList&index='+this.cur_page+'&page_size='+this.pageSize;
+				this.url = this.apiUrl+'/g01jfsc_zk65m/exchange_order/getExchangeOrderList?index='+this.cur_page+'&page_size='+this.pageSize;
 				this.$axios.get(this.url).then((res) => {
 					console.log(res);
 					this.tableData = res.data.data.list;
@@ -232,7 +232,7 @@
 				this.currentId = id;
 				this.timePickerValue = [];
 				// 点击获取商品详情
-				this.$axios.get(this.apiUrl+'/g01jfsc_zk65M/exchange_order/getExchangeOrderInfo?exchange_order_id='+id).then((res) => {
+				this.$axios.get(this.apiUrl+'/g01jfsc_zk65m/exchange_order/getExchangeOrderInfo?exchange_order_id='+id).then((res) => {
 					if(res.data.code==200){
 						let imgList = JSON.parse(res.data.data.product_info.product_img);
 						let imgListShop = JSON.parse(res.data.data.product_info.picture);
@@ -284,7 +284,7 @@
 						str += this.multipleSelection[i].order_code + ' ';
 						this.deleteIdArr.push(this.multipleSelection[i].exchange_order_id);
 					}
-					this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/exchange_order/deleteExchangeOrder',
+					this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/exchange_order/deleteExchangeOrder',
 						{exchange_order_id: this.deleteIdArr,
 							paramsSerializer:exchange_order_id => {
 								return qs.stringify(exchange_order_id, { indices: false })}
@@ -307,7 +307,7 @@
 			// 确定删除
 			deleteRow() {
 				this.deleteIdArr.push(this.currentId);
-				this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/exchange_order/deleteExchangeOrder',
+				this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/exchange_order/deleteExchangeOrder',
 				{exchange_order_id: this.deleteIdArr,
 				paramsSerializer:exchange_order_id => {
 					return qs.stringify(exchange_order_id, { indices: false })}
@@ -342,7 +342,7 @@
 				this.$axios
 				.get(
 					this.apiUrl +
-					"/g01jfsc_zk65M/exchange_order/getExchangeOrderList?page_size=" +
+					"/g01jfsc_zk65m/exchange_order/getExchangeOrderList?page_size=" +
 					this.pageSize +
 					"&index=" +
 					this.filter_page+

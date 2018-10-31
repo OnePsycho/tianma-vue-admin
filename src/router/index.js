@@ -4,7 +4,8 @@ import Router from 'vue-router';
 Vue.use(Router);
 
 export default new Router({
-	mode: 'history',
+    mode: 'history',
+    base: '/application/g01jfsc_zk65m/web/',
     routes: [
         {
             path: '/',
@@ -15,11 +16,6 @@ export default new Router({
             component: resolve => require(['../components/common/Home.vue'], resolve), // vue-router懒加载
             meta: { title: '自述文件' },
             children:[
-//                 {
-//                     path: '/dashboard',
-//                     component: resolve => require(['../components/page/Dashboard.vue'], resolve),
-//                     meta: { title: '系统首页' }
-//                 },
                 {
                     path: '/classify',
                     component: resolve => require(['../components/page/BaseClassify.vue'], resolve),

@@ -128,7 +128,7 @@
 					<el-input v-model="form.link"></el-input>
 				</el-form-item>
 				<el-form-item label="商品券码" prop="ticket_code">
-					<el-input v-model="form.ticket_code" placeholder="上传券码文件或者手动输入，券码之间英文逗号分隔，单个券码长度小于100"></el-input>
+					<el-input v-model="form.ticket_code" placeholder="手动输入券码之间英文逗号分隔，TXT文件回车分隔"></el-input>
 					<el-upload
 						class="upload-demo"
 						action=""
@@ -224,7 +224,7 @@
 					<el-input v-model="formAdd.link"></el-input>
 				</el-form-item>
 				<el-form-item label="商品券码" prop="ticket_code">
-					<el-input v-model="formAdd.ticket_code" placeholder="上传券码文件或者手动输入，券码之间英文逗号分隔，单个券码长度小于100"></el-input>
+					<el-input v-model="formAdd.ticket_code" placeholder="手动输入券码之间英文逗号分隔，TXT文件回车分隔"></el-input>
 					<el-upload
 						class="upload-demo"
 						action=""
@@ -459,7 +459,7 @@ export default {
       this.value5 = ["",""];
       this.url =
         this.apiUrl +
-        "/g01jfsc_zk65M/product/getProductList?page_size=" +
+        "/g01jfsc_zk65m/product/getProductList?page_size=" +
         this.pageSize +
         "&index=" +
         this.cur_page;
@@ -478,14 +478,14 @@ export default {
       this.$axios
         .get(
           this.apiUrl +
-            "/g01jfsc_zk65M/product_category/getProductCategoryList&index=1"
+            "/g01jfsc_zk65m/product_category/getProductCategoryList?index=1"
         )
         .then(res => {
           this.classifyList = res.data.data.list;
         });
       // 获取专区信息
       this.$axios
-        .get(this.apiUrl + "/g01jfsc_zk65M/area/getAreaList&index=1")
+        .get(this.apiUrl + "/g01jfsc_zk65m/area/getAreaList?index=1")
         .then(res => {
           this.areaList = res.data.data.list;
         });
@@ -493,7 +493,7 @@ export default {
     getDataByCategory(id){
       this.url =
         this.apiUrl +
-        "/g01jfsc_zk65M/product/getProductList?page_size=" +
+        "/g01jfsc_zk65m/product/getProductList?page_size=" +
         this.pageSize +
         "&index=" +
         this.select_page+
@@ -528,7 +528,7 @@ export default {
       // 点击获取商品详情
       this.$axios
         .get(
-          this.apiUrl + "/g01jfsc_zk65M/product/getProductInfo?product_id=" + id
+          this.apiUrl + "/g01jfsc_zk65m/product/getProductInfo?product_id=" + id
         )
         .then(res => {
           if (res.data.code == 200) {
@@ -593,7 +593,7 @@ export default {
           this.deleteIdArr.push(this.multipleSelection[i].product_id);
         }
         this.$axios
-          .post(this.apiUrl + "/g01jfsc_zk65M/product/deleteProduct", {
+          .post(this.apiUrl + "/g01jfsc_zk65m/product/deleteProduct", {
             product_id: this.deleteIdArr,
             paramsSerializer: product_id => {
               return qs.stringify(product_id, { indices: false });
@@ -630,7 +630,7 @@ export default {
             // 发送修改商品信息请求
             console.log(this.imgListNoHeader);
             this.$axios
-              .put(this.apiUrl + "/g01jfsc_zk65M/product/updateProduct", {
+              .put(this.apiUrl + "/g01jfsc_zk65m/product/updateProduct", {
                 product_id: this.currentId,
                 product_name: this.form.product_name,
                 start_time: this.form.timePickerValue[0],
@@ -683,7 +683,7 @@ export default {
             console.log(this.videoForm);
           } else {
             this.$axios
-              .post(this.apiUrl + "/g01jfsc_zk65M/product/addProduct", {
+              .post(this.apiUrl + "/g01jfsc_zk65m/product/addProduct", {
                 product_name: this.formAdd.product_name,
                 start_time: this.formAdd.timePickerValue[0],
                 end_time: this.formAdd.timePickerValue[1],
@@ -725,7 +725,7 @@ export default {
     deleteRow() {
       this.deleteIdArr.push(this.currentId);
       this.$axios
-        .post(this.apiUrl + "/g01jfsc_zk65M/product/deleteProduct", {
+        .post(this.apiUrl + "/g01jfsc_zk65m/product/deleteProduct", {
           product_id: this.deleteIdArr,
           paramsSerializer: product_id => {
             return qs.stringify(product_id, { indices: false });
@@ -786,7 +786,7 @@ export default {
         this.$axios
           .get(
             this.apiUrl +
-              "/g01jfsc_zk65M/product/getProductList?page_size=" +
+              "/g01jfsc_zk65m/product/getProductList?page_size=" +
               this.pageSize +
               "&index=" +
               this.filter_page+
@@ -815,7 +815,7 @@ export default {
       var formData = new FormData();
       formData.append("file", res.file);
       this.$axios
-        .post(this.apiUrl + "/g01jfsc_zk65M/upload/imgUpload", formData)
+        .post(this.apiUrl + "/g01jfsc_zk65m/upload/imgUpload", formData)
         .then(res => {
           if (res.data.code == 200) {
             this.$message.success("上传成功");
@@ -831,7 +831,7 @@ export default {
       var formData = new FormData();
       formData.append("file", res.file);
       this.$axios
-        .post(this.apiUrl + "/g01jfsc_zk65M/upload/imgUpload", formData)
+        .post(this.apiUrl + "/g01jfsc_zk65m/upload/imgUpload", formData)
         .then(res => {
           if (res.data.code == 200) {
             this.$message.success("上传成功");
@@ -845,7 +845,7 @@ export default {
       var formData = new FormData();
       formData.append("file", res.file);
       this.$axios
-        .post(this.apiUrl + "/g01jfsc_zk65M/upload/videoUpload ", formData)
+        .post(this.apiUrl + "/g01jfsc_zk65m/upload/videoUpload ", formData)
         .then(res => {
           if (res.data.code == 200) {
             this.form.video = res.data.data;

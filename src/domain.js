@@ -1,5 +1,6 @@
 // 配置全局接口域名
-const domain = 'http://192.168.1.110';
+const domain = '';
 export default {
- apiUrl:domain
+ apiUrl:domain,
+ token:localStorage.getItem('token')
 }

@@ -186,7 +186,7 @@
     		},
 			getData() {
 				this.select_word = "";
-				this.url = this.apiUrl+'/g01jfsc_zk65M/slider/getSliderList&index='+this.cur_page+'&page_size='+this.pageSize;
+				this.url = this.apiUrl+'/g01jfsc_zk65m/slider/getSliderList?index='+this.cur_page+'&page_size='+this.pageSize;
 				this.$axios.get(this.url).then((res) => {
 					this.tableData = res.data.data.list;
 					this.loading = false;
@@ -194,7 +194,7 @@
 				})
 				
 				// 获取所有商品
-				this.$axios.get(this.apiUrl+'/g01jfsc_zk65M/product/getProductList&index=1').then((res) => {
+				this.$axios.get(this.apiUrl+'/g01jfsc_zk65m/product/getProductList?index=1').then((res) => {
 					this.goodsList = res.data.data.list;
 				})
 			},
@@ -232,7 +232,7 @@
 						str += this.multipleSelection[i].product_name + ' ';
 						this.deleteIdArr.push(this.multipleSelection[i].slider_id);
 					}
-					this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/slider/deleteSlider',
+					this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/slider/deleteSlider',
 						{slider_id: this.deleteIdArr,
 							paramsSerializer:slider_id => {
 								return qs.stringify(slider_id, { indices: false })}
@@ -257,7 +257,7 @@
 						if(this.imgListNoHeader.length==0){
 							this.$message("图片不能为空!");
 						}else{
-						this.$axios.put(this.apiUrl+'/g01jfsc_zk65M/slider/updateSlider', {
+						this.$axios.put(this.apiUrl+'/g01jfsc_zk65m/slider/updateSlider', {
 							slider_id:this.currentId,
 							product_id:this.form.product_id,
 							picture:this.imgUploadUrl
@@ -282,7 +282,7 @@
 						if(this.imgListNoHeader.length==0){
 							this.$message("图片不能为空!");
 						}else{
-						this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/slider/addSlider', {
+						this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/slider/addSlider', {
 							product_id: this.formAdd.product_id,
 							picture:this.imgUploadUrl
 						}).then((res) => {
@@ -303,7 +303,7 @@
 			// 确定删除
 			deleteRow() {
 				this.deleteIdArr.push(this.currentId);
-				this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/slider/deleteSlider',
+				this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/slider/deleteSlider',
 				{slider_id: this.deleteIdArr,
 				paramsSerializer:slider_id => {
 					return qs.stringify(slider_id, { indices: false })}
@@ -352,7 +352,7 @@
 				this.imgListNoHeader = [];
 				var formData = new FormData();
 				formData.append("file",res.file);
-				this.$axios.post(this.apiUrl+'/g01jfsc_zk65M/upload/imgUpload',formData)
+				this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/upload/imgUpload',formData)
 				.then((res) => {
 					if(res.data.code==200){
 						this.$message.success("上传成功");
@@ -372,7 +372,7 @@
 			this.$axios
 			.get(
 				this.apiUrl +
-				"/g01jfsc_zk65M/slider/getSliderList?page_size=" +
+				"/g01jfsc_zk65m/slider/getSliderList?page_size=" +
 				this.pageSize +
 				"&index=" +
 				this.filter_page+

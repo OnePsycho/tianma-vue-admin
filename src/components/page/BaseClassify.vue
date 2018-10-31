@@ -146,7 +146,7 @@ export default {
       console.log(this.select_word);
         this.url =
         this.apiUrl +
-        "/g01jfsc_zk65M/product_category/getProductCategoryList?index=1" +
+        "/g01jfsc_zk65m/product_category/getProductCategoryList?index=1" +
         "&page_size=" +
         this.pageSize+
          "&keyword="+
@@ -161,7 +161,7 @@ export default {
       this.select_word = "";
       this.url =
         this.apiUrl +
-        "/g01jfsc_zk65M/product_category/getProductCategoryList&index=" +
+        "/g01jfsc_zk65m/product_category/getProductCategoryList?index=" +
         this.cur_page +
         "&page_size=" +
         this.pageSize;
@@ -204,7 +204,7 @@ export default {
         this.$axios
           .post(
             this.apiUrl +
-              "/g01jfsc_zk65M/product_category/deleteProductCategory",
+              "/g01jfsc_zk65m/product_category/deleteProductCategory",
             {
               product_category_id: this.deleteIdArr,
               paramsSerializer: product_category_id => {
@@ -232,7 +232,7 @@ export default {
           this.$axios
             .put(
               this.apiUrl +
-                "/g01jfsc_zk65M/product_category/updateProductCategory",
+                "/g01jfsc_zk65m/product_category/updateProductCategory",
               {
                 product_category_id: this.currentId,
                 name: this.form.name
@@ -258,7 +258,7 @@ export default {
           this.$axios
             .post(
               this.apiUrl +
-                "/g01jfsc_zk65M/product_category/addProductCategory",
+                "/g01jfsc_zk65m/product_category/addProductCategory",
               {
                 name: this.formAdd.name
               }
@@ -282,7 +282,7 @@ export default {
       this.deleteIdArr.push(this.currentId);
       this.$axios
         .post(
-          this.apiUrl + "/g01jfsc_zk65M/product_category/deleteProductCategory",
+          this.apiUrl + "/g01jfsc_zk65m/product_category/deleteProductCategory",
           {
             product_category_id: this.deleteIdArr,
             paramsSerializer: product_category_id => {
