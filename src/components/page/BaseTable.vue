@@ -478,14 +478,14 @@ export default {
       this.$axios
         .get(
           this.apiUrl +
-            "/g01jfsc_zk65m/product_category/getProductCategoryList?index=1"
+            "/g01jfsc_zk65m/product_category/getProductCategoryList?index=1&page_size=50"
         )
         .then(res => {
           this.classifyList = res.data.data.list;
         });
       // 获取专区信息
       this.$axios
-        .get(this.apiUrl + "/g01jfsc_zk65m/area/getAreaList?index=1")
+        .get(this.apiUrl + "/g01jfsc_zk65m/area/getAreaList?index=1&page_size=50")
         .then(res => {
           this.areaList = res.data.data.list;
         });
