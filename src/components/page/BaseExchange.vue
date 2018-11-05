@@ -191,9 +191,7 @@
 			handleCurrentChange(val) {
 				this.cur_page = val;
      			this.select_page = val;
-				if(this.select_word!=""||this.select_cate!=""){
-					this.filter_page = val;
-				}
+				this.filter_page = val;
 				this.filterDate();
 				
 			},

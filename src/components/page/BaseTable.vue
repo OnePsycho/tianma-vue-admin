@@ -32,7 +32,7 @@
 				</el-date-picker>
 				
 				<el-button type="primary" class="handle-del mr10" @click="filterDate">筛选</el-button>
-				<el-button type="primary" class="handle-del mr10" @click="getData">重置</el-button>
+				<el-button type="primary" class="handle-del mr10" @click="resetData">重置</el-button>
 				<el-button type="success" class="handle-del mr10" @click="addAction">新增</el-button>
 				<el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="delAll" style="margin-left: 0px;">批量删除</el-button>
 
@@ -81,9 +81,10 @@
 				<el-form-item label="商品图片" prop="product_img">
 					<el-upload action="" list-type="picture-card" :auto-upload="true" name="file" :http-request="uploadImg"
 					 :on-preview="handlePictureCardPreview" v-model="form.img_list" :on-remove="handleRemove" :limit="product_img_limit" :on-exceed="limitTip" 
-					 :file-list="form.img_list" :before-remove="beforeRemove">
+					 :file-list="form.img_list" :before-remove="beforeRemove" :before-upload="beforeUploadImage">
 						<i class="el-icon-plus"></i>
 					</el-upload>
+          <P class="text">请保证图片格式正确(支持jpg,jpeg,png,bmp,webp)，建议分辨率为750*330，最多三张</P>
 					<el-dialog :visible.sync="dialogVisible">
 						<img width="100%" :src="dialogImageUrl" alt="">
 					</el-dialog>
@@ -145,9 +146,10 @@
 				<el-form-item label="商家配图" prop="picture">
 					<el-upload action="" list-type="picture-card" :auto-upload="true" :http-request="uploadImgShop"
 					 :on-preview="handlePictureCardPreview" v-model="form.img_list_shop" :on-remove="handleRemove" :limit="picture_limit" :on-exceed="limitTip"
-					 :file-list="form.img_list_shop" :before-remove="beforeRemoveShopImg">
+					 :file-list="form.img_list_shop" :before-remove="beforeRemoveShopImg" :before-upload="beforeUploadImage">
 						<i class="el-icon-plus"></i>
 					</el-upload>
+          <P class="text">请保证图片格式正确(支持jpg,jpeg,png,bmp,webp)，建议分辨率为336*210</P>
 					<el-dialog :visible.sync="dialogVisible">
 						<img width="100%" :src="dialogImageUrl" alt="">
 					</el-dialog>
@@ -160,7 +162,7 @@
 								<i class="el-icon-plus"></i>
 								<el-progress v-if="videoFlag == true" type="circle" :percentage="videoUploadPercent" style="margin-top:30px;"></el-progress>
 						</el-upload>
-						<P class="text">请保证视频格式正确，且不超过10M，重选更换</P>
+						<P class="text">请保证视频格式正确(支持mp4,rmvb,ogg,flv,avi,wmv)，且不超过10M，重选更换<span class="btn-clear" @click="clearVideo">清空视频列表</span></P>
 				</el-form-item>
 				
 			</el-form>
@@ -174,12 +176,12 @@
 		<el-dialog title="新增" :visible.sync="addVisible" width="620px">
 			<el-form ref="formAdd" :model="formAdd" :rules="rules" label-width="100px">
 				<el-form-item label="商品图片" prop="product_img">
-					<el-upload action="" list-type="picture-card" :auto-upload="true" name="file" :http-request="uploadImg"
-					 :on-preview="handlePictureCardPreview" v-model="formAdd.img_list" :on-remove="handleRemove" :limit="product_img_limit" :on-exceed="limitTip" 
-					 :file-list="formAdd.img_list">
+					<el-upload action="" list-type="picture-card" :before-upload="beforeUploadImage" :auto-upload="true" name="file" :http-request="uploadImg"
+					 :on-preview="handlePictureCardPreview" v-model="formAdd.img_list"  :on-remove="handleRemove" :limit="product_img_limit" :on-exceed="limitTip" 
+					 :file-list="formAdd.img_list" :before-remove="beforeRemove">
 						<i class="el-icon-plus"></i>
 					</el-upload>
-					<P class="text">请保证图片格式正确，建议分辨率为750*330，最多三张</P>
+					<P class="text">请保证图片格式正确(支持jpg,jpeg,png,bmp,webp)，建议分辨率为750*330，最多三张</P>
 					<el-dialog :visible.sync="dialogVisible">
 						<img width="100%" :src="dialogImageUrl" alt="">
 					</el-dialog>
@@ -239,12 +241,12 @@
 				</el-upload>
 				</el-form-item>
 				<el-form-item label="商家配图" prop="picture">
-					<el-upload action="" list-type="picture-card" :auto-upload="true" :http-request="uploadImgShop"
+					<el-upload action="" :before-upload="beforeUploadImage" list-type="picture-card" :auto-upload="true" :http-request="uploadImgShop"
 					 :on-preview="handlePictureCardPreview" v-model="formAdd.img_list_shop" :on-remove="handleRemove" :limit="picture_limit" :on-exceed="limitTip"
-					 :file-list="formAdd.img_list_shop">
+					 :file-list="formAdd.img_list_shop" >
 						<i class="el-icon-plus"></i>
 					</el-upload>
-					<P class="text">请保证图片格式正确，建议分辨率为336*210</P>
+					<P class="text">请保证图片格式正确(支持jpg,jpeg,png,bmp,webp)，建议分辨率为336*210</P>
 					<el-dialog :visible.sync="dialogVisible">
 						<img width="100%" :src="dialogImageUrl" alt="">
 					</el-dialog>
@@ -257,7 +259,7 @@
 						  :before-upload="beforeUploadVideo" :on-progress="uploadVideoProcess">
 								<i class="el-icon-plus"></i>
 						</el-upload>
-						<P class="text">请保证视频格式正确，且不超过10M，重选更换</P>
+						<P class="text">请保证视频格式正确(支持mp4,rmvb,ogg,flv,avi,wmv)，且不超过10M，重选更换<span class="btn-clear" @click="clearVideo">清空视频列表</span></P>
 				</el-form-item>
 
 			</el-form>
@@ -287,13 +289,13 @@ export default {
   name: "basetable",
   data() {
     return {
-	  url: "",
-	  txtList:[],
+      url: "",
+      txtList: [],
       tableData: [],
       apiUrl: domain.apiUrl,
       cur_page: 1,
-      select_page:1,
-      filter_page:1,
+      select_page: 1,
+      filter_page: 1,
       multipleSelection: [],
       select_cate: "",
       select_word: "",
@@ -309,7 +311,7 @@ export default {
       editorOption: { placeholder: "使用规则、使用流程..." },
       editorOption2: { placeholder: "重要声明..." },
       form: {
-		    img_list: [],
+        img_list: [],
         img_list_shop: [],
         product_name: "",
         point_needed: "",
@@ -321,7 +323,7 @@ export default {
         product_category_name: "",
         link: "",
         ticket_code: ""
-	  },
+      },
       formAdd: {
         img_list: [],
         img_list_shop: [],
@@ -414,7 +416,8 @@ export default {
       imgShopNoHeader: [],
       deleteIdArr: [],
       videoNoHeader: "",
-      filterList:[]
+      filterList: [],
+      uploadImgState:false
     };
   },
   created() {
@@ -425,8 +428,8 @@ export default {
     $route(to) {
       if (to.path == "/table") {
         this.getData(); //当前页面展示即刷新数据
-        this.value5 = "";      
-        this.select_cate = "";  
+        this.value5 = "";
+        this.select_cate = "";
       }
     }
   },
@@ -444,19 +447,19 @@ export default {
     handleCurrentChange(val) {
       this.cur_page = val;
       this.select_page = val;
-      if(this.select_word!=""||this.select_cate!=""){
-					this.filter_page = val;
-				}
+      // if(this.select_word!=""||this.select_cate!=""){
+      this.filter_page = val;
+      // }
       this.filterDate();
     },
-    select_word_change(val){
+    select_word_change(val) {
       this.filter_page = 1;
     },
 
     getData() {
       this.select_cate = "";
       this.select_word = "";
-      this.value5 = ["",""];
+      this.value5 = ["", ""];
       this.url =
         this.apiUrl +
         "/g01jfsc_zk65m/product/getProductList?page_size=" +
@@ -485,19 +488,21 @@ export default {
         });
       // 获取专区信息
       this.$axios
-        .get(this.apiUrl + "/g01jfsc_zk65m/area/getAreaList?index=1&page_size=50")
+        .get(
+          this.apiUrl + "/g01jfsc_zk65m/area/getAreaList?index=1&page_size=50"
+        )
         .then(res => {
           this.areaList = res.data.data.list;
         });
     },
-    getDataByCategory(id){
+    getDataByCategory(id) {
       this.url =
         this.apiUrl +
         "/g01jfsc_zk65m/product/getProductList?page_size=" +
         this.pageSize +
         "&index=" +
-        this.select_page+
-         "&product_category_id=" +
+        this.select_page +
+        "&product_category_id=" +
         id;
       this.$axios
         .get(this.url, {
@@ -510,7 +515,7 @@ export default {
           this.pageSize = res.data.data.pageSize;
         });
     },
-    selectedChange(val){
+    selectedChange(val) {
       this.cur_page = 1;
       this.select_page = 1;
       this.filter_page = 1;
@@ -537,8 +542,8 @@ export default {
             this.imgListNoHeader = JSON.parse(res.data.data.product_img);
             this.imgShopNoHeader = JSON.parse(res.data.data.picture);
             if (res.data.data.video) {
-			  this.videoForm.Video = this.apiUrl + res.data.data.video;
-			  this.videoNoHeader = res.data.data.video;
+              this.videoForm.Video = this.apiUrl + res.data.data.video;
+              this.videoNoHeader = res.data.data.video;
             } else {
               this.videoForm.Video = "";
             }
@@ -621,11 +626,9 @@ export default {
         if (valid) {
           if (
             this.imgListNoHeader.length == 0 ||
-            this.imgShopNoHeader.length == 0 ||
-            this.videoForm.Video == "" ||
-            this.videoForm.Video == null
+            this.imgShopNoHeader.length == 0
           ) {
-            this.$message("视频图片不能为空！请重新上传！");
+            this.$message("图片不能为空！请重新上传！");
           } else {
             // 发送修改商品信息请求
             console.log(this.imgListNoHeader);
@@ -652,11 +655,11 @@ export default {
                   this.editVisible = false;
                   this.$message.success(`修改第 ${this.idx + 1} 行成功`);
                   this.imgListNoHeader = [];
-				  this.imgShopNoHeader = [];
-				  this.txtList = [];
-				  this.form = {};
+                  this.imgShopNoHeader = [];
+                  this.txtList = [];
+                  this.form = {};
                 } else {
-                  this.$message.warn("修改失败，请稍后重试！");
+                  this.$message.warning("修改失败，请稍后重试！");
                 }
               });
           }
@@ -673,14 +676,9 @@ export default {
         if (valid) {
           if (
             this.imgListNoHeader.length == 0 ||
-            this.imgShopNoHeader.length == 0 ||
-            this.videoForm.Video == "" ||
-            this.videoForm.Video == null
+            this.imgShopNoHeader.length == 0
           ) {
-            this.$message("视频图片不能为空！请重新上传！");
-            console.log(this.imgListNoHeader);
-            console.log(this.imgShopNoHeader);
-            console.log(this.videoForm);
+            this.$message("图片不能为空！请重新上传！");
           } else {
             this.$axios
               .post(this.apiUrl + "/g01jfsc_zk65m/product/addProduct", {
@@ -704,11 +702,11 @@ export default {
                   this.addVisible = false;
                   this.$message.success(`添加成功`);
                   this.imgListNoHeader = [];
-				  this.imgShopNoHeader = [];
-				  this.formAdd = {};
+                  this.imgShopNoHeader = [];
+                  this.formAdd = {};
                   this.formAdd.img_list = [];
-				  this.formAdd.img_list_shop = [];
-				  this.txtList = [];
+                  this.formAdd.img_list_shop = [];
+                  this.txtList = [];
                   this.$refs["formAdd"].resetFields();
                 } else {
                   this.$message.warn(`添加失败`);
@@ -743,8 +741,7 @@ export default {
     },
     // 移除文件
     handleRemove(file, fileList) {
-      console.log(file, fileList);
-      if (fileList.length == 0) {
+      if (fileList.length == 0 && this.beforeUploadImage(file.raw) != false) {
         this.$message("图片不能为空！");
       }
     },
@@ -781,31 +778,30 @@ export default {
     filterDate() {
       console.log(this.value5);
       if (!this.value5) {
-        this.value5 = ['',''];
-      } 
-        this.$axios
-          .get(
-            this.apiUrl +
-              "/g01jfsc_zk65m/product/getProductList?page_size=" +
-              this.pageSize +
-              "&index=" +
-              this.filter_page+
-              "&start_time=" +
-              this.value5[0] +
-              "&end_time=" +
-              this.value5[1]+
-              "&keyword="+
-              this.select_word+
-              "&product_category_id="+
-              this.select_cate
-          )
-          .then(res => {
-            console.log(res);
-            this.tableData = res.data.data.list;
-            this.totalNum = res.data.data.totalElements;
-            this.pageSize = res.data.data.pageSize;
-          });
-      
+        this.value5 = ["", ""];
+      }
+      this.$axios
+        .get(
+          this.apiUrl +
+            "/g01jfsc_zk65m/product/getProductList?page_size=" +
+            this.pageSize +
+            "&index=" +
+            this.filter_page +
+            "&start_time=" +
+            this.value5[0] +
+            "&end_time=" +
+            this.value5[1] +
+            "&keyword=" +
+            this.select_word +
+            "&product_category_id=" +
+            this.select_cate
+        )
+        .then(res => {
+          console.log(res);
+          this.tableData = res.data.data.list;
+          this.totalNum = res.data.data.totalElements;
+          this.pageSize = res.data.data.pageSize;
+        });
     },
     limitTip() {
       this.$message("图片数量已达最大限制！");
@@ -884,20 +880,37 @@ export default {
         this.$message.error("上传视频大小不能超过10MB哦!");
         return false;
       }
-	},
-	beforeTxtUpload(file) {
-	  const isLt10M = file.size / 1024 / 1024 < 5;
-	  console.log(file.type);
+    },
+    beforeUploadImage(file) {
+      console.log(file)
+      const isLt10M = file.size / 1024 / 1024 < 10;
       if (
         [
-          "text/plain"
+          "image/jpeg",
+          "image/jpg",
+          "image/png",
+          "image/webp",
+          "image/bmp"
         ].indexOf(file.type) == -1
       ) {
+        this.$message.error("请上传正确的图片格式");
+        return false;
+      }
+      if (!isLt10M) {
+        this.$message.error("上传图片大小不能超过10MB!");
+        return false;
+      }
+      return true;
+    },
+    beforeTxtUpload(file) {
+      const isLt10M = file.size / 1024 / 1024 < 5;
+      console.log(file.type);
+      if (["text/plain"].indexOf(file.type) == -1) {
         this.$message.error("请上传正确的文本格式");
         return false;
       }
       if (!isLt10M) {
-        this.$message.error("上传视频大小不能超过5MB哦!");
+        this.$message.error("上传文本大小不能超过5MB!");
         return false;
       }
     },
@@ -915,17 +928,17 @@ export default {
       reader.onload = function(oFREvent) {
         //读取完毕从中取值
         var pointsTxt = oFREvent.target.result.split("\n");
-		txtData = pointsTxt.join(",").replace(/\ +/g,"");
-		console.log(txtData);
-		if(that.form.ticket_code!=""){
-        	that.form.ticket_code = that.form.ticket_code+','+txtData;
-		}else{
-			that.form.ticket_code =	txtData;
-		}
-		that.txtList = [];
+        txtData = pointsTxt.join(",").replace(/\ +/g, "");
+        console.log(txtData);
+        if (that.form.ticket_code != "") {
+          that.form.ticket_code = that.form.ticket_code + "," + txtData;
+        } else {
+          that.form.ticket_code = txtData;
+        }
+        that.txtList = [];
       };
-	},
-	uploadTxtAdd(file, fileList) {
+    },
+    uploadTxtAdd(file, fileList) {
       console.log(file);
       var that = this;
       var txtData = "";
@@ -934,14 +947,23 @@ export default {
       reader.onload = function(oFREvent) {
         //读取完毕从中取值
         var pointsTxt = oFREvent.target.result.split("\n");
-		txtData = pointsTxt.join(",").replace(/\ +/g,"");
-		if(that.formAdd.ticket_code!=""){
-        	that.formAdd.ticket_code = that.formAdd.ticket_code+','+txtData;
-		}else{
-			that.formAdd.ticket_code =	txtData;
-		}
-		that.txtList = [];
+        txtData = pointsTxt.join(",").replace(/\ +/g, "");
+        if (that.formAdd.ticket_code != "") {
+          that.formAdd.ticket_code = that.formAdd.ticket_code + "," + txtData;
+        } else {
+          that.formAdd.ticket_code = txtData;
+        }
+        that.txtList = [];
       };
+    },
+    // 清空视频
+    clearVideo() {
+      this.videoForm.Video = "";
+      this.videoNoHeader = "";
+    },
+    resetData() {
+      this.cur_page = 1;
+      this.getData();
     }
   }
 };
@@ -989,5 +1011,10 @@ export default {
   height: 32px;
   line-height: 32px;
   border: 0;
+}
+.btn-clear {
+  color: red;
+  margin-left: 12px;
+  cursor: pointer;
 }
 </style>
