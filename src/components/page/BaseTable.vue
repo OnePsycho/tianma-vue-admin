@@ -84,7 +84,7 @@
 					 :file-list="form.img_list" :before-remove="beforeRemove" :before-upload="beforeUploadImage">
 						<i class="el-icon-plus"></i>
 					</el-upload>
-          <P class="text">请保证图片格式正确(支持jpg,jpeg,png,bmp,webp)，建议分辨率为750*330，最多三张</P>
+          <P class="text">请保证图片格式正确(支持jpg,jpeg,png,bmp)，建议分辨率为750*330，最多三张</P>
 					<el-dialog :visible.sync="dialogVisible">
 						<img width="100%" :src="dialogImageUrl" alt="">
 					</el-dialog>
@@ -149,7 +149,7 @@
 					 :file-list="form.img_list_shop" :before-remove="beforeRemoveShopImg" :before-upload="beforeUploadImage">
 						<i class="el-icon-plus"></i>
 					</el-upload>
-          <P class="text">请保证图片格式正确(支持jpg,jpeg,png,bmp,webp)，建议分辨率为336*210</P>
+          <P class="text">请保证图片格式正确(支持jpg,jpeg,png,bmp)，建议分辨率为336*210</P>
 					<el-dialog :visible.sync="dialogVisible">
 						<img width="100%" :src="dialogImageUrl" alt="">
 					</el-dialog>
@@ -181,7 +181,7 @@
 					 :file-list="formAdd.img_list" :before-remove="beforeRemove">
 						<i class="el-icon-plus"></i>
 					</el-upload>
-					<P class="text">请保证图片格式正确(支持jpg,jpeg,png,bmp,webp)，建议分辨率为750*330，最多三张</P>
+					<P class="text">请保证图片格式正确(支持jpg,jpeg,png,bmp)，建议分辨率为750*330，最多三张</P>
 					<el-dialog :visible.sync="dialogVisible">
 						<img width="100%" :src="dialogImageUrl" alt="">
 					</el-dialog>
@@ -246,7 +246,7 @@
 					 :file-list="formAdd.img_list_shop" >
 						<i class="el-icon-plus"></i>
 					</el-upload>
-					<P class="text">请保证图片格式正确(支持jpg,jpeg,png,bmp,webp)，建议分辨率为336*210</P>
+					<P class="text">请保证图片格式正确(支持jpg,jpeg,png,bmp)，建议分辨率为336*210</P>
 					<el-dialog :visible.sync="dialogVisible">
 						<img width="100%" :src="dialogImageUrl" alt="">
 					</el-dialog>
@@ -889,7 +889,6 @@ export default {
           "image/jpeg",
           "image/jpg",
           "image/png",
-          "image/webp",
           "image/bmp"
         ].indexOf(file.type) == -1
       ) {

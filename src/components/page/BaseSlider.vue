@@ -62,7 +62,7 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item label="轮播配图" prop="picture">
-				<el-upload action="" list-type="picture-card" :auto-upload="true" name="file" :http-request="uploadImg"
+				<el-upload action="" list-type="picture-card" :before-upload="beforeUploadImage" :auto-upload="true" name="file" :http-request="uploadImg"
 				:on-preview="handlePictureCardPreview" v-model="form.picture" :on-remove="handleRemove" :limit="product_img_limit" :on-exceed="limitTip" 
 				:file-list="imgListNoHeader" :before-remove="beforeRemove">
 					<i class="el-icon-plus"></i>
@@ -91,7 +91,7 @@
 				</el-form-item>
 				<el-form-item label="轮播配图" prop="picture">
 				<el-upload action="" list-type="picture-card" :auto-upload="true" name="file" :http-request="uploadImg"
-				:on-preview="handlePictureCardPreview" v-model="formAdd.picture" :on-remove="handleRemove" :limit="product_img_limit" :on-exceed="limitTip" 
+				:on-preview="handlePictureCardPreview" :before-upload="beforeUploadImage" v-model="formAdd.picture" :on-remove="handleRemove" :limit="product_img_limit" :on-exceed="limitTip" 
 				:file-list="imgListNoHeader">
 					<i class="el-icon-plus"></i>
 				</el-upload>
@@ -117,310 +117,347 @@
 </template>
 
 <script>
-	import qs from 'qs';
-	export default {
-		name: 'basetable',
-		data() {
-			return {
-				url: '',
-				tableData: [],
-				apiUrl:domain.apiUrl,
-				cur_page: 1,
-				filter_page:1,
-				multipleSelection: [],
-				select_word: '',
-				del_list: [],
-				is_search: false,
-				editVisible: false,
-				addVisible: false,
-				delVisible: false,
-				dialogImageUrl: '',
-				dialogVisible: false,
-				content: '',
-				timePickerValue: '',
-				form: {}, 
-				formAdd: {},
-				idx: -1,
-				loading:true,
-				// 表单填写规则
-				rules: {
-					product_id: [
-						{ required: true,  trigger: 'change', message: '请选择商品' },
-					]
-				},
-				currentId:0,
-				totalNum:0,
-				pageSize:10,
-				product_img_limit:1,
-				deleteIdArr:[],
-				imgListNoHeader:[],
-				imgUploadUrl:'',
-				goodsList:[]
-			}
-		},
-		created() {
-			this.getData();
-		},
-		watch:{   //监听路由变化
-			$route(to){   
-				if(to.path == "/slider"){
-					this.getData();//当前页面展示即刷新数据
-				}
-			}
-		},
-		computed: {
-			// 筛选部分
-			data() {
-				return this.tableData;
-			}
-		},
-		methods: {
-			// 分页导航
-			handleCurrentChange(val) {
-				this.cur_page = val;
-				this.filter_page = val;
-				this.filterDate();
-			},
-			select_word_change(val){
-      			this.filter_page = 1;
-    		},
-			getData() {
-				this.select_word = "";
-				this.url = this.apiUrl+'/g01jfsc_zk65m/slider/getSliderList?index='+this.cur_page+'&page_size='+this.pageSize;
-				this.$axios.get(this.url).then((res) => {
-					this.tableData = res.data.data.list;
-					this.loading = false;
-					this.totalNum = res.data.data.totalElements;
-				})
-				
-				// 获取所有商品
-				this.$axios.get(this.apiUrl+'/g01jfsc_zk65m/product/getProductList?index=1').then((res) => {
-					this.goodsList = res.data.data.list;
-				})
-			},
-			// 编辑信息
-			handleEdit(id,index, row) {
-				this.imgListNoHeader = [];
-				this.idx = index;
-				this.currentId = id;
-				const item = this.tableData[index];
-				this.imgListNoHeader.push({'url':this.apiUrl+item.picture});
-				this.imgUploadUrl = item.picture;
-				// 把item值传给form
-				this.form = {
-					product_id: item.product_id,
-					url:item.picture
-				}
-				this.editVisible = true;
-			},
-			// 删除信息
-			handleDelete(id,index, row) {
-				this.idx = index;
-				this.currentId = id;
-				this.delVisible = true;
-			},
-			// 批量删除
-			delAll() {
-				this.deleteIdArr =[];
-				const length = this.multipleSelection.length;
-				if(length==0){
-					this.$message.error('请选择删除项！');
-				}else{
-					let str = '';
-					this.del_list = this.del_list.concat(this.multipleSelection);
-					for (let i = 0; i < length; i++) {
-						str += this.multipleSelection[i].product_name + ' ';
-						this.deleteIdArr.push(this.multipleSelection[i].slider_id);
-					}
-					this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/slider/deleteSlider',
-						{slider_id: this.deleteIdArr,
-							paramsSerializer:slider_id => {
-								return qs.stringify(slider_id, { indices: false })}
-					}).then((res) => {
-								if(res.data.code==200){
-									this.getData();
-									this.$message.success('删除成功!');
-									this.multipleSelection = [];
-									this.deleteIdArr = [];
-								}
-							})
-				}
-				
-			},
-			handleSelectionChange(val) {
-				this.multipleSelection = val;
-			},
-			// 保存编辑
-			saveEdit(formName) {
-				this.$refs[formName].validate((valid) => {
-					if (valid) {
-						if(this.imgListNoHeader.length==0){
-							this.$message("图片不能为空!");
-						}else{
-						this.$axios.put(this.apiUrl+'/g01jfsc_zk65m/slider/updateSlider', {
-							slider_id:this.currentId,
-							product_id:this.form.product_id,
-							picture:this.imgUploadUrl
-						}).then((res) => {
-							if(res.data.code==200){
-								this.getData();
-								this.editVisible = false;
-								this.$message.success(`修改第 ${this.idx+1} 行成功`);
-							}
-						})
-							}
-					} else {
-						console.log('error submit!!');
-						return false;
-					}
-				});
-			},
-			// 保存新增
-			saveAdd(formName) {
-				this.$refs[formName].validate((valid) => {
-          if (valid) {
-						if(this.imgListNoHeader.length==0){
-							this.$message("图片不能为空!");
-						}else{
-						this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/slider/addSlider', {
-							product_id: this.formAdd.product_id,
-							picture:this.imgUploadUrl
-						}).then((res) => {
-							if(res.data.code==200){
-								this.getData();
-								this.addVisible = false;
-								this.$message.success(`添加成功`);
-								this.formAdd = {};
-							}
-						})
-						}
+import qs from "qs";
+export default {
+  name: "basetable",
+  data() {
+    return {
+      url: "",
+      tableData: [],
+      apiUrl: domain.apiUrl,
+      cur_page: 1,
+      filter_page: 1,
+      multipleSelection: [],
+      select_word: "",
+      del_list: [],
+      is_search: false,
+      editVisible: false,
+      addVisible: false,
+      delVisible: false,
+      dialogImageUrl: "",
+      dialogVisible: false,
+      content: "",
+      timePickerValue: "",
+      form: {},
+      formAdd: {},
+      idx: -1,
+      loading: true,
+      // 表单填写规则
+      rules: {
+        product_id: [
+          { required: true, trigger: "change", message: "请选择商品" }
+        ]
+      },
+      currentId: 0,
+      totalNum: 0,
+      pageSize: 10,
+      product_img_limit: 1,
+      deleteIdArr: [],
+      imgListNoHeader: [],
+      imgUploadUrl: "",
+      goodsList: []
+    };
+  },
+  created() {
+    this.getData();
+  },
+  watch: {
+    //监听路由变化
+    $route(to) {
+      if (to.path == "/slider") {
+        this.getData(); //当前页面展示即刷新数据
+      }
+    }
+  },
+  computed: {
+    // 筛选部分
+    data() {
+      return this.tableData;
+    }
+  },
+  methods: {
+    // 分页导航
+    handleCurrentChange(val) {
+      this.cur_page = val;
+      this.filter_page = val;
+      this.filterDate();
+    },
+    select_word_change(val) {
+      this.filter_page = 1;
+    },
+    getData() {
+      this.select_word = "";
+      this.url =
+        this.apiUrl +
+        "/g01jfsc_zk65m/slider/getSliderList?index=" +
+        this.cur_page +
+        "&page_size=" +
+        this.pageSize;
+      this.$axios.get(this.url).then(res => {
+        this.tableData = res.data.data.list;
+        this.loading = false;
+        this.totalNum = res.data.data.totalElements;
+      });
+
+      // 获取所有商品
+      this.$axios
+        .get(this.apiUrl + "/g01jfsc_zk65m/product/getProductList?index=1")
+        .then(res => {
+          this.goodsList = res.data.data.list;
+        });
+    },
+    // 编辑信息
+    handleEdit(id, index, row) {
+      this.imgListNoHeader = [];
+      this.idx = index;
+      this.currentId = id;
+      const item = this.tableData[index];
+      this.imgListNoHeader.push({ url: this.apiUrl + item.picture });
+      this.imgUploadUrl = item.picture;
+      // 把item值传给form
+      this.form = {
+        product_id: item.product_id,
+        url: item.picture
+      };
+      this.editVisible = true;
+    },
+    // 删除信息
+    handleDelete(id, index, row) {
+      this.idx = index;
+      this.currentId = id;
+      this.delVisible = true;
+    },
+    // 批量删除
+    delAll() {
+      this.deleteIdArr = [];
+      const length = this.multipleSelection.length;
+      if (length == 0) {
+        this.$message.error("请选择删除项！");
+      } else {
+        let str = "";
+        this.del_list = this.del_list.concat(this.multipleSelection);
+        for (let i = 0; i < length; i++) {
+          str += this.multipleSelection[i].product_name + " ";
+          this.deleteIdArr.push(this.multipleSelection[i].slider_id);
+        }
+        this.$axios
+          .post(this.apiUrl + "/g01jfsc_zk65m/slider/deleteSlider", {
+            slider_id: this.deleteIdArr,
+            paramsSerializer: slider_id => {
+              return qs.stringify(slider_id, { indices: false });
+            }
+          })
+          .then(res => {
+            if (res.data.code == 200) {
+              this.getData();
+              this.$message.success("删除成功!");
+              this.multipleSelection = [];
+              this.deleteIdArr = [];
+            }
+          });
+      }
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+    // 保存编辑
+    saveEdit(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          if (this.imgListNoHeader.length == 0) {
+            this.$message("图片不能为空!");
           } else {
-            console.log('error submit!!');
-            return false;
+            this.$axios
+              .put(this.apiUrl + "/g01jfsc_zk65m/slider/updateSlider", {
+                slider_id: this.currentId,
+                product_id: this.form.product_id,
+                picture: this.imgUploadUrl
+              })
+              .then(res => {
+                if (res.data.code == 200) {
+                  this.getData();
+                  this.editVisible = false;
+                  this.$message.success(`修改第 ${this.idx + 1} 行成功`);
+                }
+              });
+          }
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
+    // 保存新增
+    saveAdd(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          if (this.imgListNoHeader.length == 0) {
+            this.$message("图片不能为空!");
+          } else {
+            this.$axios
+              .post(this.apiUrl + "/g01jfsc_zk65m/slider/addSlider", {
+                product_id: this.formAdd.product_id,
+                picture: this.imgUploadUrl
+              })
+              .then(res => {
+                if (res.data.code == 200) {
+                  this.getData();
+                  this.addVisible = false;
+                  this.$message.success(`添加成功`);
+                  this.formAdd = {};
+                }
+              });
+          }
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
+    // 确定删除
+    deleteRow() {
+      this.deleteIdArr.push(this.currentId);
+      this.$axios
+        .post(this.apiUrl + "/g01jfsc_zk65m/slider/deleteSlider", {
+          slider_id: this.deleteIdArr,
+          paramsSerializer: slider_id => {
+            return qs.stringify(slider_id, { indices: false });
+          }
+        })
+        .then(res => {
+          if (res.data.code == 200) {
+            this.getData();
+            this.tableData.splice(this.idx, 1);
+            this.$message.success("删除成功");
+            this.delVisible = false;
+            this.deleteIdArr = [];
           }
         });
-			},
-			// 确定删除
-			deleteRow() {
-				this.deleteIdArr.push(this.currentId);
-				this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/slider/deleteSlider',
-				{slider_id: this.deleteIdArr,
-				paramsSerializer:slider_id => {
-					return qs.stringify(slider_id, { indices: false })}
-    }).then((res) => {
-					if(res.data.code==200){
-						this.getData();
-						this.tableData.splice(this.idx, 1);
-						this.$message.success('删除成功');
-						this.delVisible = false;
-						this.deleteIdArr = [];
-					}
-				})
-			},
-			handlePictureCardPreview(file) {
-				this.dialogImageUrl = file.url;
-				this.dialogVisible = true;
-			  },
-			// 新增
-			addAction(){
-				this.imgListNoHeader = [];
-				this.form = {};
-				this.formAdd = {};
-				this.addVisible = true;
-			},
-			handleSizeChange(val) {
-				this.pageSize = val;
-				this.getData();
-			},
-			limitTip(){
-				this.$message("图片数量已达最大限制！");
-			},
-			// 移除文件
-			handleRemove(file, fileList) {
-				console.log(file, fileList);
-				if(fileList.length == 0){this.$message("图片不能为空！")}
-			},
-			beforeRemove(file, fileList){
-				for (var i = 0; i < fileList.length; i++){
-					if (fileList[i] === file){ //表示数组里面有这个元素
-							console.log(i);
-							this.imgListNoHeader.splice(i,1);
-					}
-			}},
-			// 上传商品图片
-			uploadImg(res){
-				this.imgListNoHeader = [];
-				var formData = new FormData();
-				formData.append("file",res.file);
-				this.$axios.post(this.apiUrl+'/g01jfsc_zk65m/upload/imgUpload',formData)
-				.then((res) => {
-					if(res.data.code==200){
-						this.$message.success("上传成功");
-						this.imgListNoHeader.push({'url':this.apiUrl+res.data.data.url});
-						this.imgUploadUrl = res.data.data.url;
-						console.log(this.imgListNoHeader);
-					}else{
-						this.$message.warn('上传失败！请重试');
-					}
-				})
-			},
-			handleSizeChange(val) {
-				this.pageSize = val;
-				this.filterDate();
-			},
-			filterDate() {
-			this.$axios
-			.get(
-				this.apiUrl +
-				"/g01jfsc_zk65m/slider/getSliderList?page_size=" +
-				this.pageSize +
-				"&index=" +
-				this.filter_page+
-				"&keyword="+
-				this.select_word
-			)
-			.then(res => {
-				console.log(res);
-				this.tableData = res.data.data.list;
-				this.totalNum = res.data.data.totalElements;
-				this.pageSize = res.data.data.pageSize;
-				 if(res.data.data.list.length==0){
-					this.filter_page = 1;
-					this.filterDate();
-				}
-			});
-		
-		},
-		}
-	}
+    },
+    beforeUploadImage(file) {
+      console.log(file);
+      const isLt10M = file.size / 1024 / 1024 < 10;
+      if (
+        ["image/jpeg", "image/jpg", "image/png", "image/bmp"].indexOf(
+          file.type
+        ) == -1
+      ) {
+        this.$message.error("请上传正确的图片格式");
+        return false;
+      }
+      if (!isLt10M) {
+        this.$message.error("上传图片大小不能超过10MB!");
+        return false;
+      }
+      return true;
+    },
+    handlePictureCardPreview(file) {
+      this.dialogImageUrl = file.url;
+      this.dialogVisible = true;
+    },
+    // 新增
+    addAction() {
+      this.imgListNoHeader = [];
+      this.form = {};
+      this.formAdd = {};
+      this.addVisible = true;
+    },
+    handleSizeChange(val) {
+      this.pageSize = val;
+      this.getData();
+    },
+    limitTip() {
+      this.$message("图片数量已达最大限制！");
+    },
+    // 移除文件
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+      if (fileList.length == 0 && !file.raw) {
+        this.$message("图片不能为空！");
+      }
+    },
+    beforeRemove(file, fileList) {
+      for (var i = 0; i < fileList.length; i++) {
+        if (fileList[i] === file) {
+          //表示数组里面有这个元素
+          console.log(i);
+          this.imgListNoHeader.splice(i, 1);
+        }
+      }
+    },
+    // 上传商品图片
+    uploadImg(res) {
+      this.imgListNoHeader = [];
+      var formData = new FormData();
+      formData.append("file", res.file);
+      this.$axios
+        .post(this.apiUrl + "/g01jfsc_zk65m/upload/imgUpload", formData)
+        .then(res => {
+          if (res.data.code == 200) {
+            this.$message.success("上传成功");
+            this.imgListNoHeader.push({ url: this.apiUrl + res.data.data.url });
+            this.imgUploadUrl = res.data.data.url;
+            console.log(this.imgListNoHeader);
+          } else {
+            this.$message.warn("上传失败！请重试");
+          }
+        });
+    },
+    handleSizeChange(val) {
+      this.pageSize = val;
+      this.filterDate();
+    },
+    filterDate() {
+      this.$axios
+        .get(
+          this.apiUrl +
+            "/g01jfsc_zk65m/slider/getSliderList?page_size=" +
+            this.pageSize +
+            "&index=" +
+            this.filter_page +
+            "&keyword=" +
+            this.select_word
+        )
+        .then(res => {
+          console.log(res);
+          this.tableData = res.data.data.list;
+          this.totalNum = res.data.data.totalElements;
+          this.pageSize = res.data.data.pageSize;
+          if (res.data.data.list.length == 0) {
+            this.filter_page = 1;
+            this.filterDate();
+          }
+        });
+    }
+  }
+};
 </script>
 
 <style scoped>
-	.handle-box {
-		margin-bottom: 20px;
-	}
+.handle-box {
+  margin-bottom: 20px;
+}
 
-	.handle-select {
-		width: 120px;
-	}
+.handle-select {
+  width: 120px;
+}
 
-	.handle-input {
-		width: 300px;
-		display: inline-block;
-	}
+.handle-input {
+  width: 300px;
+  display: inline-block;
+}
 
-	.del-dialog-cnt {
-		font-size: 16px;
-		text-align: center
-	}
+.del-dialog-cnt {
+  font-size: 16px;
+  text-align: center;
+}
 
-	.table {
-		width: 100%;
-		font-size: 14px;
-	}
+.table {
+  width: 100%;
+  font-size: 14px;
+}
 
-	.red {
-		color: #ff0000;
-	}
-
+.red {
+  color: #ff0000;
+}
 </style>
