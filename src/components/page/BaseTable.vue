@@ -58,6 +58,8 @@
 				</el-table-column>
 				<el-table-column prop="point_needed" label="兑换所需积分" width="150" align="center" sortable>
 				</el-table-column>
+				<el-table-column prop="product_count" label="剩余数量" width="90" align="center">
+				</el-table-column>
 				<el-table-column prop="product_category_name" label="商品类别" width="90" align="center">
 				</el-table-column>
 				<el-table-column label="操作" align="center">
@@ -94,6 +96,9 @@
 				</el-form-item>
 				<el-form-item label="兑换积分" prop="point_needed">
 					<el-input v-model="form.point_needed"></el-input>
+				</el-form-item>
+				<el-form-item label="商品数量" prop="product_count">
+					<el-input v-model="form.product_count"></el-input>
 				</el-form-item>
 				<el-form-item label="兑换日期" prop="timePickerValue">
 					<el-date-picker v-model="form.timePickerValue" type="datetimerange"  value-format="yyyy-MM-dd HH:mm:ss" range-separator="至" start-placeholder="开始日期"
@@ -142,6 +147,11 @@
 						:file-list="txtList">
 					<el-button size="small" type="primary">重新上传券码TXT文件</el-button>
 				</el-upload>
+        		文本示例图 : 
+						<el-popover placement="right" title="" trigger="hover">
+							<img src="static/code.png" width="754" height="519" class="head_pic" />
+							<img slot="reference" src="static/code.png" style="height: 50px;width: 50px;cursor: pointer;">
+						</el-popover>
 				</el-form-item>
 				<el-form-item label="商家配图" prop="picture">
 					<el-upload action="" list-type="picture-card" :auto-upload="true" :http-request="uploadImgShop"
@@ -192,6 +202,9 @@
 				<el-form-item label="兑换积分" prop="point_needed">
 					<el-input v-model="formAdd.point_needed"></el-input>
 				</el-form-item>
+        <el-form-item label="商品数量" prop="product_count">
+					<el-input v-model="formAdd.product_count"></el-input>
+				</el-form-item>
 				<el-form-item label="兑换日期" prop="timePickerValue">
 					<el-date-picker v-model="formAdd.timePickerValue" type="datetimerange" value-format="yyyy-MM-dd HH:mm:ss" range-separator="至" start-placeholder="开始日期"
 					 end-placeholder="结束日期">
@@ -239,6 +252,12 @@
 						:file-list="txtList">
 					<el-button size="small" type="primary">点击上传券码TXT文件</el-button>
 				</el-upload>
+				    文本示例图 : 
+						<el-popover placement="right" title="" trigger="hover">
+							<img src="static/code.png" width="754" height="519" class="head_pic" />
+							<img slot="reference" src="static/code.png" style="height: 50px;width: 50px;cursor: pointer;">
+						</el-popover>
+        
 				</el-form-item>
 				<el-form-item label="商家配图" prop="picture">
 					<el-upload action="" :before-upload="beforeUploadImage" list-type="picture-card" :auto-upload="true" :http-request="uploadImgShop"
@@ -386,6 +405,9 @@ export default {
         point_needed: [
           { required: true, message: "兑换积分不能为空", trigger: "change" }
         ],
+        product_count: [
+          { required: true, message: "商品数量不能为空", trigger: "change" }
+        ],
         description: [
           { required: true, message: "商品详情不能为空", trigger: "change" }
         ],
@@ -417,7 +439,8 @@ export default {
       deleteIdArr: [],
       videoNoHeader: "",
       filterList: [],
-      uploadImgState:false
+      uploadImgState:false,
+      ticket_code_count:0
     };
   },
   created() {
@@ -563,6 +586,7 @@ export default {
                 img_list_shop: imgListShop,
                 product_name: res.data.data.product_name,
                 point_needed: res.data.data.point_needed,
+                product_count: res.data.data.product_count,
                 timePickerValue: this.timePickerValue,
                 start_time: res.data.data.start_time,
                 end_time: res.data.data.end_time,
@@ -630,6 +654,9 @@ export default {
           ) {
             this.$message("图片不能为空！请重新上传！");
           } else {
+            if(this.form.ticket_code){
+              this.form.product_count = this.form.ticket_code.split(',').length;
+            }
             // 发送修改商品信息请求
             console.log(this.imgListNoHeader);
             this.$axios
@@ -639,6 +666,7 @@ export default {
                 start_time: this.form.timePickerValue[0],
                 end_time: this.form.timePickerValue[1],
                 point_needed: this.form.point_needed,
+                product_count: this.form.product_count,
                 description: this.form.description,
                 product_category_name: this.form.product_category_name,
                 link: this.form.link,
@@ -680,12 +708,16 @@ export default {
           ) {
             this.$message("图片不能为空！请重新上传！");
           } else {
+             if(this.form.ticket_code){
+              this.form.product_count = this.form.ticket_code.split(',').length;
+            }
             this.$axios
               .post(this.apiUrl + "/g01jfsc_zk65m/product/addProduct", {
                 product_name: this.formAdd.product_name,
                 start_time: this.formAdd.timePickerValue[0],
                 end_time: this.formAdd.timePickerValue[1],
                 point_needed: this.formAdd.point_needed,
+                product_count: this.formAdd.product_count,
                 description: this.formAdd.description,
                 product_category_name: this.formAdd.product_category_name,
                 link: this.formAdd.link,
@@ -928,12 +960,13 @@ export default {
         //读取完毕从中取值
         var pointsTxt = oFREvent.target.result.split("\n");
         txtData = pointsTxt.join(",").replace(/\ +/g, "");
-        console.log(txtData);
+        console.log(txtData.split(','));
         if (that.form.ticket_code != "") {
           that.form.ticket_code = that.form.ticket_code + "," + txtData;
         } else {
           that.form.ticket_code = txtData;
         }
+        that.form.product_count = that.form.ticket_code.split(',').length;
         that.txtList = [];
       };
     },
@@ -952,6 +985,7 @@ export default {
         } else {
           that.formAdd.ticket_code = txtData;
         }
+         that.formAdd.product_count = that.formAdd.ticket_code.split(',').length;
         that.txtList = [];
       };
     },

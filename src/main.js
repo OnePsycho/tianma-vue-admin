@@ -11,8 +11,8 @@ import domain from './domain.js';
 
 Vue.use(ElementUI, { size: 'small' });
 Vue.prototype.$axios = axios;
-Vue.prototype.$axios.defaults.headers.common['token'] = 'ADDE13D64C3CAA93A060C43341B29284';
-// Vue.prototype.$axios.defaults.headers.common['token'] = localStorage.getItem('token');
+// Vue.prototype.$axios.defaults.headers.common['token'] = 'ADDE13D64C3CAA93A060C43341B29284';
+Vue.prototype.$axios.defaults.headers.common['token'] = localStorage.getItem('token');
 global.domain = domain;
 
 //使用钩子函数对路由进行权限跳转
